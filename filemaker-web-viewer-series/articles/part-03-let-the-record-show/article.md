@@ -13,7 +13,7 @@
   </a>
 </aside>
 
-Last round, the Web Viewer learned to talk back. FileMaker pushed context in, JavaScript reported user intent through `WV.sendAction`, and FileMaker returned acknowledgement context while retaining ownership of application state.
+Last round, the Web Viewer learned to talk back. FileMaker pushed context in, JavaScript reported user intent through `WV.sendAction`, and FileMaker sent the result back to the Web Viewer while remaining in charge of application state.
 
 The return trip worked. It was also deliberately harmless. Clicking `Mark Movie` changed visible demo fields; it did not change the current native record, the found set, or any production data. We proved the bridge before asking it to carry furniture.
 
@@ -22,8 +22,6 @@ This pass gives that bridge a real job.
 FileMaker establishes a native found set of ranked movies, shapes those records into a documented JSON contract, and sends the contract to a repeated-row renderer. Click a ranked row inside the Web Viewer and JavaScript reports the stable movie id through the same action bridge. FileMaker validates the request against the current ranked collection, navigates to the corresponding native `MOVIE` record, rebuilds context, and returns the authoritative selection.
 
 The visible difference matters. The selected row in the Web Viewer changes. So do the native movie title, movie id, current-record number, and FileMaker toolbar position. We are no longer proving that a button can set a global field. We are proving that one interface surface can ask FileMaker to navigate real records and then accept FileMaker's answer.
-
-The JavaScript in the ranked renderer was developed with AI assistance. I defined the payload, action, ownership, module, and native-test contracts; the AI helped produce and revise the renderer inside them. The full prompt, review, FileMaker test, and revision loop is the next installment. Here, the code is still an implementation of a human-owned contract, not a small browser application that has declared independence.
 
 The ranked list is the example, not the curriculum. We are using it to make three methods visible: FileMaker shaping native data into an explicit contract, modular Web Viewer code rendering that contract, and AI-assisted JavaScript working inside boundaries a FileMaker developer can inspect and test.
 
@@ -180,7 +178,7 @@ This is the part that makes the current pass different from the last one. FileMa
 
 ![The native Script Workspace showing the ranked builder's found-set navigation, selected-id reconciliation, row JSON, and final context construction.](<screenshots/05-builder-native.png>)
 
-## Two New Modules, One Clear Boundary
+## Named Modules, Repeated Rows
 
 The cumulative library keeps the eight modules from the two-way demo and adds two:
 
@@ -189,22 +187,9 @@ The cumulative library keeps the eight modules from the two-way demo and adds tw
 | `41` | `wv.page.ranked.list.html` | assemble the ranked page and show the initial loading state |
 | `42` | `wv.renderer.ranked.list.js` | render repeated rows, empty state, selected state, and selection actions |
 
-The exact indexes belong to this demo. The reusable idea is simpler: the page declares what it needs, the library assembles those dependencies, and the renderer remains a named module that can be reviewed or replaced without reopening the whole Web Viewer package. Module `41` makes that boundary explicit:
-
-```html
-Dependencies:
-  - LIB[20] wv.platform.base.html
-  - LIB[21] wv.platform.base.css
-  - LIB[22] wv.platform.runtime.js
-  - LIB[23] wv.platform.context.js
-  - LIB[24] wv.platform.boot.js
-  - LIB[25] wv.platform.actions.js
-  - LIB[42] wv.renderer.ranked.list.js
-```
+The exact indexes belong to this demo. The reusable idea is simpler: page `41` declares its platform, action-bridge, and renderer dependencies; the library assembles them; and the renderer remains a named module that can be reviewed or replaced without reopening the whole Web Viewer package.
 
 ![The native module inventory with cumulative platform modules 20–25, ranked page 41, ranked renderer 42, and the earlier context page 62/63.](<screenshots/07-module-inventory-native.png>)
-
-## Repeated Rows Stay In JavaScript
 
 Once FileMaker supplies the ordered array, repeated-row rendering is a browser job. The renderer iterates the `ranked_view.rows` array and uses only the contract it received:
 
@@ -227,41 +212,17 @@ rows.forEach(function (record) {
 
 JavaScript handles presentation; FileMaker makes the application decisions: which movies belong in the array, their order, and which movie is selected. That division is not a slight against JavaScript. It is a refusal to duplicate FileMaker rules in the one place least able to enforce them.
 
-## Loading, Empty, Populated, And Selected
-
-The page begins with a literal loading state:
-
-```html
-<section class="wv-ranked-page" data-wv-page="ranked-list">
-  <div class="wv-ranked-loading" role="status">Loading ranked records…</div>
-</section>
-```
+The page begins with a literal loading state. When context arrives, the renderer replaces it with either the ranked rows or an explicit empty state. The same contract drives loading, empty, populated, and selected presentation; the renderer applies the selected treatment only when FileMaker returns `selected: true` for that record.
 
 ![The native FileMaker Web Viewer after the ranked page loads and before context is pushed.](<screenshots/01-ranked-loading-native.png>)
 
-When context arrives, the renderer clears that surface and draws either a list or an explicit empty state:
-
-```js
-if (!rows.length) {
-  shell.appendChild(el(
-    "div",
-    "wv-ranked-empty",
-    value(ranked.empty_message, "No ranked movies match the active filter.")
-  ));
-} else {
-  var list = el("div", "wv-ranked-list");
-  // repeated rows
-  shell.appendChild(list);
-}
-```
-
-The click does not decide which row remains selected. The renderer applies the selected treatment only when FileMaker returns `selected: true` for that record.
+An empty array produces a different, deliberate result:
 
 ![The ranked renderer's deliberate empty state in the native FileMaker target.](<screenshots/02-ranked-empty-native.png>)
 
-## The Row Click Reuses The Existing Bridge
+## The New Work Happens In FileMaker
 
-The row handler does not call `FileMaker.PerformScript` directly. It uses the same `WV.sendAction` door established last round:
+The row handler does not call `FileMaker.PerformScript` directly. It reuses the `WV.sendAction` door established last round:
 
 ```js
 row.addEventListener("click", function () {
@@ -273,26 +234,7 @@ row.addEventListener("click", function () {
 });
 ```
 
-The Web Viewer sends FileMaker a small JSON message:
-
-```json
-{
-  "__wv_action": {
-    "page": 41,
-    "source": "wv.renderer.ranked.list",
-    "ts": "2026-08-02T06:07:55.106Z",
-    "version": 1
-  },
-  "payload": {
-    "movie_id": "MOVIE-51D0E623-D55B-4D32-9191-B20C58243640"
-  },
-  "type": "ranked.select_movie"
-}
-```
-
-The important part is what FileMaker does with that message. It does not merely record the action and return a status, as it did last round. It checks that the supplied movie id belongs to the current ranked collection, navigates the native found set to that record, and only then returns the selected state.
-
-## FileMaker Validates, Navigates, And Acknowledges
+The action is `ranked.select_movie`; its payload contains the stable `movie_id`. The envelope machinery is unchanged. The important part is what FileMaker does after receiving it.
 
 The inherited `WV__Demo_Handle_Action` script still checks incoming messages and handles the two demo actions from last round. This pass adds only `ranked.select_movie` and the checks required for it.
 
@@ -348,72 +290,24 @@ The native layout changes to `AX: Amber Void (2018)`. The visible native id chan
 
 That is the payoff for this pass. The Web Viewer asked; FileMaker navigated; both surfaces settled on FileMaker's state.
 
-![The native FileMaker and Web Viewer surfaces after the acknowledged row selection.](<screenshots/03-ranked-selected-native.png>)
-
 ## Debug The Layers Separately
 
 Once native records, JSON, rendering, actions, and acknowledgement are involved, “the Web Viewer is wrong” covers a great deal of territory while locating none of it.
 
-Ask how far the evidence traveled. The same boundaries that make the system modular also tell us where to look when it fails.
+Ask how far the evidence traveled. The same boundaries that make the system modular also tell us where to look when it fails:
 
-### The Native Found Set Is Wrong
+| Symptom | Inspect next |
+| --- | --- |
+| Native found set is wrong | active FileMaker filter, `$_rows_text`, and the count after `Perform Find` |
+| Found set is right but JSON is wrong | row and field separators, `$_rows_json`, counts, ids, order, and selected values |
+| JSON is right but rows do not appear | rebuilt library, page/renderer registration, and whether `ranked_view.rows` arrived as an array rather than quoted JSON |
+| Click does not reach FileMaker | `FOCUS::g_wv_action_json`, then the Web Viewer permission to perform FileMaker scripts |
+| FileMaker rejects the id | `payload.movie_id`, the ids in the current `ranked_view.rows`, and the page/source metadata |
+| FileMaker navigates but the viewer does not settle | native record position, selected id, rebuilt context, returned `selected` flag, and load/push results |
 
-Inspect the FileMaker layer first:
+If the FileMaker found set is wrong, JavaScript is merely displaying the consequences with better typography. If `FOCUS::g_wv_action_json` contains the click, the viewer already delivered it; continue on the FileMaker side. And if that field never changes, check the Web Viewer permission checkbox. It is small. Its capacity for wasting an afternoon remains disproportionately large.
 
-- the active FileMaker filter
-- the query result in `$_rows_text`
-- the found count after `Perform Find`
-
-If the FileMaker found set is wrong, JavaScript is merely displaying the consequences with better typography.
-
-### The Found Set Is Right But The JSON Is Wrong
-
-Inspect:
-
-- the row and field separators used by `ExecuteSQL`
-- the completed array in `$_rows_json`
-- the reported row and native found counts
-- the id, order, and selected values FileMaker emitted
-
-If the found set is correct but the JSON is wrong, compare one row in `$_rows_text` with its corresponding object in `$_rows_json`. The first value that diverges tells you whether the problem is separator parsing, type conversion, or construction of the contract.
-
-### The JSON Is Right But Rows Still Do Not Appear
-
-At this point, follow the context into JavaScript:
-
-1. Rebuild the library if the renderer module changed.
-2. Load the ranked page and confirm that its renderer registered in the viewer's debug display.
-3. Push context and confirm that `ranked_view.rows` reached the renderer as an array rather than as text containing JSON.
-
-If the loading message remains, the page did not receive usable context or the renderer was not available to handle it. If the explicit empty state appears, the renderer did run but found no usable rows; inspect the array it received.
-
-### The Click Does Not Reach FileMaker
-
-Inspect `FOCUS::g_wv_action_json`. If it did not change, the failure is still in the viewer or bridge. If it contains the click message, continue on the FileMaker side.
-
-The Web Viewer object must still allow JavaScript to perform FileMaker scripts. The checkbox is small. Its capacity for wasting an afternoon remains disproportionately large.
-
-### FileMaker Rejects The Id
-
-Compare:
-
-1. `payload.movie_id` in `FOCUS::g_wv_action_json`
-2. the ids in `ranked_view.rows`
-3. the current page and source metadata
-
-The handler deliberately rejects an id that is absent from the current ranked collection. A movie can exist in the database and still be invalid for the active view.
-
-### FileMaker Navigates But The Viewer Does Not Settle
-
-The action path worked. Follow the state FileMaker returned:
-
-- visible native movie and record position
-- FileMaker's selected movie id
-- rebuilt `ranked_view.selected_movie_id`
-- the row whose returned `selected` value is `true`
-- viewer load and context-push results
-
-Do not rewrite the click handler. It already delivered the id.
+The handler deliberately rejects an id absent from the current ranked collection. A movie can exist in the database and still be invalid for the active view.
 
 ## FileMaker Still Owns The Application
 
@@ -437,7 +331,7 @@ That arrangement is slightly less magical and considerably more maintainable.
 
 ## Where The AI Co-Developer Fits
 
-The ranked renderer is the most substantial AI-assisted JavaScript in the series so far. The useful part is not that an AI can write `rows.forEach`. The useful part is that the request described a narrow, inspectable job:
+The ranked renderer is the most substantial AI-assisted JavaScript in the series so far. The useful part is not that an AI can write `rows.forEach`; it is that the request described a narrow, inspectable job:
 
 - input: the documented ranked-row contract
 - output: one documented selection action
@@ -445,11 +339,7 @@ The ranked renderer is the most substantial AI-assisted JavaScript in the series
 - presentation: repeated rows with explicit loading, empty, and selected states
 - change boundary: the ranked page and renderer modules
 
-Those constraints let us review the result against a contract rather than treating the entire Web Viewer as one opaque deliverable.
-
-Next round, we will show that collaboration instead of summarizing it: the prompt, supplied context, first output, review, native FileMaker evidence, and revision loop.
-
-The ranked list here is the contract-teaching surface. It is not the visual ceiling.
+Those constraints let us review the result against a contract rather than treating the entire Web Viewer as one opaque deliverable. Next round, we will show that collaboration instead of summarizing it: the prompt, supplied context, first output, review, native FileMaker evidence, and revision loop. The ranked list here is the contract-teaching surface. It is not the visual ceiling.
 
 ## Takeaway
 
