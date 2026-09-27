@@ -11,17 +11,6 @@
   </a>
 </aside>
 
-Screenshot placeholders:
-
-1. `[SCREENSHOT: WV Framework - Demo before pushing context; input fields and blank/initial Web Viewer visible.]`
-2. `[SCREENSHOT: WV Framework - Demo after context push; context-card renderer visible in wv_main.]`
-3. `[SCREENSHOT: WV Framework - Demo showing FOCUS::g_wv_context_json after Build Context.]`
-4. `[SCREENSHOT: WV Framework - Modules showing retained module records 20, 21, 22, 23, 24, 62, and 63.]`
-5. `[SCREENSHOT: WV Framework - Modules showing the Rebuild Library button.]`
-6. `[SCREENSHOT: Script Workspace showing WV__Demo_Build_Context, WV__Demo_Load_Viewer, WV__Demo_Push_Context, and WV__Demo_Run_All.]`
-7. `[SCREENSHOT: Script Workspace showing WV__Demo_Rebuild_Library.]`
-
-
 FileMaker developers have been using Web Viewers for a long time. Maps, charts, help screens, dashboards, status panels, little HTML widgets tucked into a layout because native objects were not quite enough; none of this is new territory.
 
 We are not here to discover that FileMaker can run web code.
@@ -171,7 +160,7 @@ The main demo layout uses a small set of fields:
 
 The movie and genre fields use existing value lists from the stripped file. That keeps the demo grounded in FileMaker data without asking the reader to care about the full original schema. The payload field is intentionally visible. If the reader cannot see what FileMaker is about to send into the Web Viewer, the demo is asking for trust where it should be offering evidence.
 
-`[SCREENSHOT: WV Framework - Demo before pushing context; input fields and blank/initial Web Viewer visible.]`
+![The native Part One demo after FileMaker builds its initial JSON context; the payload is visible while the Web Viewer remains blank.](<screenshots/01-initial-context-built-native.png>)
 
 The buttons are equally direct:
 
@@ -184,7 +173,7 @@ The buttons are equally direct:
 
 `Run All` is there for convenience. The separate buttons are there for teaching. A reader should be able to stop after each step and inspect what changed. Otherwise we are back to "click the magic button and trust me," which is how too many internal tools introduce themselves.
 
-`[SCREENSHOT: WV Framework - Demo after context push; context-card renderer visible in wv_main.]`
+![The initial context rendered in wv_main after FileMaker pushes the payload.](<screenshots/02-initial-context-pushed-native.png>)
 
 ## Module Records, Not Mystery Text
 
@@ -200,7 +189,7 @@ That distinction matters when maintaining a FileMaker/Web Viewer hybrid:
 
 This is not abstraction for sport. Sport abstraction is how simple problems get promoted into internal platforms and acquire a logo. Here, the split exists because each module has a job the reader can inspect.
 
-`[SCREENSHOT: WV Framework - Modules showing retained module records 20, 21, 22, 23, 24, 62, and 63.]`
+![The retained native module inventory: platform modules 20 through 24, page module 62, and renderer module 63.](<screenshots/03-module-inventory-native.png>)
 
 The base modules carry the shared framework:
 
@@ -401,7 +390,7 @@ In this demo, editing a module does not silently rebuild the cache. The reader e
 
 That is intentionally manual. Everyone will survive.
 
-`[SCREENSHOT: WV Framework - Modules showing the Rebuild Library button.]`
+![The native module layout with the deliberately visible Rebuild Library control.](<screenshots/04-library-rebuild-native.png>)
 
 The utility button calls `WV__Demo_Rebuild_Library`. The script commits the current record, forces the library cache rebuild, clears the loaded-viewer map, and returns a small status object.
 
@@ -450,7 +439,7 @@ WV__Demo_Build_Context -> WV__Demo_Load_Viewer -> WV__Demo_Push_Context
 
 `WV__Demo_Run_All` runs those three scripts in order.
 
-`[SCREENSHOT: Script Workspace showing WV__Demo_Build_Context, WV__Demo_Load_Viewer, WV__Demo_Push_Context, and WV__Demo_Run_All.]`
+![The retained demonstration scripts in FileMaker Script Workspace, including the four walkthrough actions and the library rebuild utility.](<screenshots/05-demo-scripts-native.png>)
 
 That flow is the point: FileMaker assembles the viewer, builds the context, sends that context into the viewer, and JavaScript renders what it is given.
 
@@ -471,7 +460,7 @@ The layout should show:
 - the Web Viewer object named `wv_main`
 - four buttons: `Build Context`, `Load Viewer`, `Push Context`, and `Run All`
 
-`[SCREENSHOT: WV Framework - Demo before pushing context; input fields and blank/initial Web Viewer visible.]`
+![The native walkthrough starting state: context has been built without movie or genre selections, and the Web Viewer has not received it.](<screenshots/06-empty-context-built-native.png>)
 
 This first walkthrough is deliberately procedural. The reader should do the steps in order once, even though `Run All` exists. Automation is much more comforting after you have seen what it automates; before that, it is just a button with opinions.
 
@@ -550,7 +539,7 @@ Exit Script [ Result: $_context_json ]
 
 The important result is not the status message. It is the visible payload.
 
-`[SCREENSHOT: WV Framework - Demo showing FOCUS::g_wv_context_json after Build Context.]`
+![The selected movie and genre inputs reflected in FOCUS::g_wv_context_json before the Web Viewer is updated.](<screenshots/07-selected-context-built-native.png>)
 
 The current payload shape looks like this:
 
@@ -796,7 +785,7 @@ FileMaker JSON
 
 Expected result: the Web Viewer updates to show the context-card renderer using values from the JSON payload, without requiring a full viewer reload.
 
-`[SCREENSHOT: WV Framework - Demo after context push; context-card renderer visible in wv_main.]`
+![The selected FileMaker context rendered in wv_main after Push Context, without rebuilding the viewer.](<screenshots/08-selected-context-pushed-native.png>)
 
 If the push step fails, check three things before getting creative. Creativity is lovely; during debugging it should wait in the hallway:
 
