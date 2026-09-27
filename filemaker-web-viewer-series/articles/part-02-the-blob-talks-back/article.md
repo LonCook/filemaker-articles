@@ -187,15 +187,9 @@ markButton.addEventListener("click", function () {
 });
 ```
 
-The call is valid. It asks FileMaker to run `WV__Demo_Handle_Action` with serialized text as its script parameter. It does not synchronously return the FileMaker script result to JavaScript, and outside a FileMaker Web Viewer, `window.FileMaker` is not present at all.
+The call is valid. The problem is making every renderer remember the handler name, envelope shape, serialization, bridge check, and error behavior. Those details will drift; six months later, the routing diagram is archaeology.
 
-The problem is not the call. The problem is asking every renderer to remember the handler name, envelope version, metadata shape, serialization, native-bridge check, and error behavior. Leave those details in each click handler and they will drift. One button sends an object. Another sends a bare id. A filter sends a return-delimited list because it was late and technically worked.
-
-Each call is understandable on its own. Six months later, the collection becomes archaeology. You find a script name, a bare id, and a comment that says “used by Web Viewer,” which is technically documentation in the same way a luggage tag is a travel itinerary.
-
-We can do better without building an action framework large enough to require governance. Every button will use the same bridge. Every request will have the same outer shape. FileMaker receives one predictable object, validates it, and decides whether anything else should change.
-
-In the previous pass, module `23`, `wv.platform.context.js`, handled context moving from FileMaker into JavaScript. We could stuff the return trip into that same module. It is right there. It has “context” in the name. This is how junk drawers begin.
+We give that work one home instead. Module `23`, `wv.platform.context.js`, continues to handle context coming in. A new action module handles intent going out.
 
 Instead, we add one small platform module for the other direction:
 
@@ -260,15 +254,9 @@ WV.sendAction = function (type, payload, options) {
 };
 ```
 
-The function turns a missing payload into `{}`, rejects an empty action type, remembers the last envelope for debugging, checks for the FileMaker bridge, and returns a short local result. Nobody had to invent middleware. We are all coping.
+The function normalizes the payload, rejects an empty action type, remembers the envelope for debugging, and checks for the FileMaker bridge.
 
-That return value does need a careful reading.
-
-`ok` means JavaScript successfully handed the request to `FileMaker.PerformScript`. It does not mean FileMaker validated the action, authorized it, completed it, or changed any state. `FileMaker.PerformScript` starts the FileMaker script; it is not a synchronous round trip with a tiny certificate of moral correctness.
-
-The acknowledgement comes through context later.
-
-If the same assembled page is opened in an ordinary browser harness, `WV.sendAction` returns `noFileMaker`. That is more useful than throwing an exception, and considerably more honest than returning `ok` because the button had a positive attitude.
+Its return value needs one distinction: `ok` means the call was placed, not accepted. FileMaker acknowledgement arrives later through context. Outside FileMaker, the function returns `noFileMaker`.
 
 The [complete action module](../../shared/library/wv.platform.actions.js) remains available for inspection; the published argument needs the contract and handoff, not every line required to make the module polite in production JavaScript.
 
@@ -398,8 +386,6 @@ The native script keeps those validation branches visible. They are the code tha
 
 This is not a complete production authorization layer. A production handler would also validate each action's payload, check current record and privilege context, route the request to focused scripts, and return or log more specific errors. The [source and build evidence](source/) retains the exact demo fields, exported handler, and construction sequence; the published lesson is the boundary they prove.
 
-The handler also does not trust the action timestamp, source label, or page index as FileMaker state. Those values are diagnostic metadata. FileMaker can use them when debugging; it should not confuse “the client said this” with “the application established this.”
-
 ## FileMaker Acknowledges Through Context
 
 There is one small wrinkle. JavaScript starts the FileMaker handler, but `FileMaker.PerformScript` does not hand the script result back as a neat synchronous reply. The button knows it placed the call. It does not know what FileMaker decided.
@@ -477,7 +463,7 @@ This version adds module `25` between the base package and renderer:
 20 -> 21, 22, 23, 24
 ```
 
-The page root still owns the demo-specific assembly. The base shell still owns its CSS, runtime, context bridge, and boot code. We are adding one dependency, not renegotiating the entire family tree.
+The page root still owns the demo-specific assembly. The base shell still owns its CSS, runtime, context bridge, and boot code. We are adding one dependency.
 
 Nothing else about loading changes. The cache contract established last round still applies: commit the module record, rebuild the cached library, and reload the viewer before expecting changed code to appear. This pass keeps that machinery visible, but it does not reteach it; the new contract is the position of module `25` before any renderer that calls it.
 
@@ -494,58 +480,57 @@ context JSON into the viewer
 action JSON out of the viewer
 ```
 
-Before the first run, select `wv_main` in Layout mode, open **Format > Web Viewer Setup...**, and enable `Allow JavaScript to perform FileMaker scripts`. Save the layout. The one-way demo had no reason to grant that permission, so the inherited checkbox is off. This is the sort of perfectly sensible default that can consume an indecent amount of afternoon.
+Before the first run:
+
+1. Select `wv_main` in Layout mode.
+2. Open **Format > Web Viewer Setup...**.
+3. Enable `Allow JavaScript to perform FileMaker scripts`.
+4. Save the layout.
+
+The one-way demo had no reason to grant that permission, so the inherited checkbox is off. This is the sort of perfectly sensible default that can consume an indecent amount of afternoon.
 
 ### Establish The Existing Context Path
 
-Choose a movie and genre, then use the familiar `Build Context`, `Load Viewer`, and `Push Context` controls. Those operations were the subject of the previous walkthrough; here they are setup for the new return trip.
+Those familiar operations were the subject of the previous walkthrough; here they are setup for the new return trip.
 
-Immediately after `Load Viewer`, the page shell says `Waiting for context`. If the debug HUD is enabled, it reports `hasRenderer: true`; the assembled package is present, but no current context has been pushed.
+1. Choose a movie and genre.
+2. Click `Build Context`.
+3. Click `Load Viewer`.
+4. Confirm that the page shell says `Waiting for context`. If the debug HUD is enabled, it should report `hasRenderer: true`; the assembled package is present, but no current context has been pushed.
+5. Click `Push Context`.
+6. Confirm that the card shows the selected ids, acknowledgement values, and both action buttons. The action count should still be zero. We have installed a doorbell; nobody has pressed it.
 
 ![The Web Viewer immediately after Load Viewer: the shell is waiting for context while the debug HUD confirms that the renderer is registered.](<screenshots/01-waiting-after-load.png>)
-
-After `Push Context`, the card shows the selected ids, acknowledgement values, and both action buttons. The action count should still be zero. We have installed a doorbell; nobody has pressed it.
 
 If the values appear but the buttons do not, inspect module `63`, module `25`, and their dependency order before editing the FileMaker handler. The handler cannot remove a button it has never met.
 
 ### Inspect Context From The Viewer
 
-Now click `Inspect Context` inside `wv_main`.
-
-Expected result on the FileMaker layout:
-
-- `FOCUS::g_wv_action_type` becomes `demo.inspect_context`
-- `FOCUS::g_wv_action_count` increments
-- `FOCUS::g_wv_action_status` becomes `Handled demo.inspect_context`
-- `FOCUS::g_wv_action_json` shows the full formatted envelope
-
-Expected result inside the viewer:
-
-- the local note first shows `Action send result: ok`
-- after FileMaker pushes acknowledgement context, the action count and last action values update
-
-Watch the order. The first status belongs to JavaScript: the call was placed. The second belongs to FileMaker: the envelope was accepted and new context came back. They are related; they are not the same claim. That distinction is easy to lose when both messages happen quickly and everything is feeling cooperative.
+1. Click `Inspect Context` inside `wv_main`.
+2. Confirm the FileMaker layout:
+   - `FOCUS::g_wv_action_type` becomes `demo.inspect_context`.
+   - `FOCUS::g_wv_action_count` increments.
+   - `FOCUS::g_wv_action_status` becomes `Handled demo.inspect_context`.
+   - `FOCUS::g_wv_action_json` shows the full formatted envelope.
+3. Confirm the viewer:
+   - The local note first shows `Action send result: ok`.
+   - After FileMaker pushes acknowledgement context, the action count and last action values update.
+4. Watch the order. The first status belongs to JavaScript: the call was placed. The second belongs to FileMaker: the envelope was accepted and new context came back. They are related; they are not the same claim. That distinction is easy to lose when both messages happen quickly and everything is feeling cooperative.
 
 ### Send A State-Looking Action
 
-Now click `Mark Movie`.
-
-Expected result on the FileMaker layout:
-
-- `FOCUS::g_wv_action_type` becomes `demo.mark_movie`
-- `FOCUS::g_wv_action_count` increments again; if you began with zero, it is now `2`
-- `FOCUS::g_wv_action_status` becomes `Handled demo.mark_movie`
-- `FOCUS::g_wv_action_json` shows the formatted `demo.mark_movie` envelope with the current movie and genre ids
-
-Expected result inside the viewer:
-
-- `Actions handled` becomes `2`
-- `Last action` becomes `demo.mark_movie`
-- `Action status` becomes `Handled demo.mark_movie`
-
-Now compare `defaults.movie_id` and `defaults.genre_id` in the context JSON with `payload.movie_id` and `payload.genre_id` in the action JSON. They should match. The first object is what FileMaker supplied; the second is the intent JavaScript handed back.
-
-Now inspect the selected movie record.
+1. Click `Mark Movie`.
+2. Confirm the FileMaker layout:
+   - `FOCUS::g_wv_action_type` becomes `demo.mark_movie`.
+   - `FOCUS::g_wv_action_count` increments again; if you began with zero, it is now `2`.
+   - `FOCUS::g_wv_action_status` becomes `Handled demo.mark_movie`.
+   - `FOCUS::g_wv_action_json` shows the formatted `demo.mark_movie` envelope with the current movie and genre ids.
+3. Confirm the viewer:
+   - `Actions handled` becomes `2`.
+   - `Last action` becomes `demo.mark_movie`.
+   - `Action status` becomes `Handled demo.mark_movie`.
+4. Compare `defaults.movie_id` and `defaults.genre_id` in the context JSON with `payload.movie_id` and `payload.genre_id` in the action JSON. They should match. The first object is what FileMaker supplied; the second is the intent JavaScript handed back.
+5. Inspect the selected movie record.
 
 It should be unchanged.
 
