@@ -394,7 +394,7 @@ Exit Script [ Result: JSONSetElement ( "{}"
 
 ![WV__Demo_Handle_Action in the native FileMaker Script Workspace.](<screenshots/05-handler-script.png>)
 
-The validation is intentionally visible. It is the code that keeps “but the button only sends valid JSON” from becoming an incident report.
+The native script keeps those validation branches visible. They are the code that keeps “but the button only sends valid JSON” from becoming an incident report.
 
 This is not a complete production authorization layer. A production handler would also validate each action's payload, check current record and privilege context, route the request to focused scripts, and return or log more specific errors. The [source and build evidence](source/) retains the exact demo fields, exported handler, and construction sequence; the published lesson is the boundary they prove.
 
@@ -542,6 +542,8 @@ Expected result inside the viewer:
 - `Actions handled` becomes `2`
 - `Last action` becomes `demo.mark_movie`
 - `Action status` becomes `Handled demo.mark_movie`
+
+Now compare `defaults.movie_id` and `defaults.genre_id` in the context JSON with `payload.movie_id` and `payload.genre_id` in the action JSON. They should match. The first object is what FileMaker supplied; the second is the intent JavaScript handed back.
 
 Now inspect the selected movie record.
 
