@@ -2,7 +2,9 @@
 
 Target article:
 
-`Context In, Actions Out: Two-Way FileMaker Web Viewer Communication`
+`Beyond the Web Viewer Blob: The Blob Talks Back`
+
+Subtitle: *Actions Out*
 
 Source FileMaker file:
 

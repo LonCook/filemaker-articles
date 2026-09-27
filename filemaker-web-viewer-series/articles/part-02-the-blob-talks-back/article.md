@@ -1,4 +1,6 @@
-# Context In, Actions Out: Two-Way FileMaker Web Viewer Communication
+# Beyond the Web Viewer Blob: The Blob Talks Back
+
+## Actions Out
 
 <aside class="article-resources" aria-label="Article files">
   <a class="article-resources__repository" href="https://github.com/LonCook/filemaker-articles/tree/main/filemaker-web-viewer-series/articles/part-02-the-blob-talks-back">

@@ -1,4 +1,4 @@
-# Beyond the HTML Blob
+# Beyond the Web Viewer Blob
 
 The first article replaces a calculated HTML blob with named Web Viewer modules, explicit assembly, and a one-way FileMaker-to-JavaScript context path.
 

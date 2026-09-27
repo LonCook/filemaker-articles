@@ -1,4 +1,4 @@
-# Beyond the HTML Blob: A Modular Framework for FileMaker Web Viewer Visualizations
+# Beyond the Web Viewer Blob: A Modular Framework for FileMaker Web Viewer Visualizations
 
 <aside class="article-resources" aria-label="Article files">
   <a class="article-resources__repository" href="https://github.com/LonCook/filemaker-articles/tree/main/filemaker-web-viewer-series/articles/part-01-beyond-the-html-blob">
@@ -27,11 +27,13 @@ But the blob also puts the page shell, style system, runtime state, rendering lo
 
 That pattern does not become easier when AI enters the workflow. AI can generate useful interface code quickly, but a useful paste is still a paste. A bigger paste with nicer indentation is not architecture; it is just a better-groomed liability. If the boundaries are not visible, the review burden shifts from "is this module doing the right thing?" to "what exactly is happening inside this impressive wall of text?"
 
-The goal of this series is to move beyond the HTML blob.
+The goal of this series is to move beyond the Web Viewer blob.
 
 Not away from Web Viewers. Not away from JavaScript. Not into pretending FileMaker should become a miniature web framework because we found a shiny thing and would now like to drive it through the living room. We have all seen that demo. It usually has gradients.
 
-The goal is narrower and more practical: keep FileMaker in charge of the application, let the Web Viewer be a strong rendering surface, and make the code that connects them inspectable.
+The goal is narrower and more practical: use AI to help develop capable Web Viewer interfaces while keeping FileMaker in charge of the application, letting the Web Viewer be a strong rendering surface, and making the code that connects them inspectable.
+
+The module code and demo interfaces in this series were developed with AI assistance. That assistance is part of the story from the beginning, but it is not the architecture. The human work is still defining the module boundary, the data contract, the ownership rules, and the acceptance test. AI can help write and revise the code inside those boundaries; without them, it mainly helps us produce the original problem at a more impressive speed.
 
 ## The Blob Is A Delivery Problem
 
@@ -92,7 +94,7 @@ The retained module set is intentionally small:
 | 22 | `wv.platform.runtime.js` | Runtime namespace and shared viewer state. |
 | 23 | `wv.platform.context.js` | Context manager and FileMaker-facing push bridge. |
 | 24 | `wv.platform.boot.js` | Startup behavior after the assembled page loads. |
-| 62 | `wv.framework.context.page.js` | Article One page module for the context demo. |
+| 62 | `wv.page.framework.context.html` | One-way context page for the first demonstrator. |
 | 63 | `wv.renderer.framework.context.js` | Renderer that reads context and draws the visible card. |
 
 The indexes are not decorative. They reserve ranges for different kinds of modules, which keeps dependency order visible. FileMaker will not enforce this for us, because FileMaker has its own hobbies, so the numbering convention is ours to keep honest.
@@ -101,10 +103,10 @@ For this series, the working ranges are:
 
 | Range | Reserved for | Notes |
 | ---: | --- | --- |
-| `20-29` | platform/base modules | Shell, base CSS, runtime, FileMaker bridge, context manager, boot code. These load before page-specific code. |
+| `20-29` | platform/base modules | Shell, base CSS, runtime, context and action bridges, and boot code. These load before page-specific code. |
 | `30-39` | shared utilities | Small reusable JavaScript helpers, formatters, or adapters if later installments need them. This first demo does not. |
 | `40-49` | data/view pages | Heavier page modules, including later native-data or ranked-list views. Kept out of this first demo on purpose. |
-| `50-59` | action/interaction modules | Action envelopes, callback routing, and two-way behavior once the viewer starts talking back to FileMaker. |
+| `50-59` | feature interaction modules | Reserved for feature-specific interaction helpers or controllers if a later interface needs them. Shared bridge behavior remains in the platform range. |
 | `60-69` | teaching/demo pages and renderers | Small demonstrator surfaces. This demo uses `62` for the context page and `63` for its renderer. |
 | `70-89` | future visualization modules | Reserved for richer reusable visualizations as the demo files accumulate. |
 | `90-99` | diagnostics and test harness modules | Debug panels, smoke-test views, or development-only helpers if they become useful. |
@@ -113,65 +115,59 @@ Only `20-24` and `62-63` are needed here. The rest of the ranges are set aside s
 
 The base framework modules load first. Page and renderer modules load later. When the file grows in later installments, that ordering will matter more; it is much easier to preserve a convention than to reconstruct one after the demo file has already become "just one more quick thing."
 
+## Three Contracts Before The Walkthrough
+
+Before opening the demo, it helps to separate three ideas that are easy to blur together when everything happens behind one button.
+
+### The Library Cache Is The Code Package
+
+The enabled `LIBRARY_CODE` records are assembled into a cached JSON library. Page modules refer to other modules by index; the render path expands those dependencies from one stable cache rather than wandering through records every time the viewer needs to load.
+
+That cache is code state. Editing a module record does not automatically change it, and rebuilding it does not automatically change a Web Viewer that is already loaded. Those distinctions may feel fussy while there are seven modules. They become considerably less fussy when the alternative is wondering which version of the code is currently smiling back from the layout.
+
+### FileMaker Owns Context
+
+FileMaker owns the selected records, ids, filters, privileges, and application state. It packages the facts the viewer needs into an explicit JSON context. JavaScript receives that context and renders it; it does not go hunting through FileMaker for a more interesting answer.
+
+The context is deliberately visible in the demo. A visible payload gives both the developer and an AI assistant something concrete to inspect: either FileMaker sent the wrong value, or the renderer mishandled the right one. That is a much better argument than "the Web Viewer looks odd."
+
+### Loading Code Is Not Pushing Data
+
+Loading installs the assembled HTML, CSS, runtime, page, and renderer in the Web Viewer. Pushing context sends new JSON into that already loaded package.
+
+```text
+Committed module records
+  -> cached JSON library
+  -> assembled viewer package
+  -> loaded Web Viewer
+
+FileMaker application state
+  -> context JSON
+  -> existing Web Viewer
+  -> renderer update
+```
+
+The first path changes the interface code. The second changes what the interface is showing. A viewer can load once and receive context many times; rebuilding the house because someone changed the furniture remains optional.
+
+The walkthrough will make all three contracts visible. Later installments will automate more of the work, but the production machinery belongs in the final pass. First we should know which verbs the machine is concealing on our behalf.
+
 The source Flicks file has richer Web Viewer surfaces than this first demo shows. We will get to those after the framework has somewhere to stand.
 
-So the first demonstrator is smaller. It shows a context card. It shows FileMaker assembling the viewer and pushing context into it. Then later demos can earn the more interesting visualization.
+So the first demonstrator is smaller. It shows a context card. It shows FileMaker assembling the viewer and pushing context into it. Later demos will use the same separation with more complex interfaces: load the application once, then push small context changes into it without rebuilding the entire Web Viewer. That is where the approach becomes visibly useful; the interface can be substantial without becoming sluggish every time FileMaker state changes.
 
-## What The Demo File Is
+## The Demo Is Evidence
 
 The demo file is a scaffold, not a working solution.
 
 It borrows enough from Flicks to make the example concrete, then strips the rest down to the concept being taught: FileMaker assembles a modular Web Viewer and pushes explicit context into it. That is the job. Not ratings. Not pairwise comparison. Not production navigation. Not a tiny museum of everything the source file once knew how to do.
 
-The demo files attached to later installments build on this one. This first file keeps the surface intentionally thin so the first concept has room to be seen; later files can add actions, richer data, smarter loading, and actual visualization behavior without pretending they were always there.
+The demo files attached to later installments build on this one. This first file keeps the surface intentionally thin so the framework can be inspected without production navigation, unrelated schema, or interface chrome standing around asking whether they can help.
 
-## What To Inspect In The Demo File
-
-**Demo inspection pass**
-
-If you are opening the demo file while reading, I would inspect it in this order:
-
-1. Open `WV Framework - Demo`.
-2. Pick a movie and genre.
-3. Click `Build Context`.
-4. Inspect `FOCUS::g_wv_context_json`.
-5. Click `Load Viewer`.
-6. Click `Push Context`.
-7. Confirm the Web Viewer card reflects the payload.
-8. Open `WV Framework - Modules`.
-9. Review modules `20`, `21`, `22`, `23`, `24`, `62`, and `63`.
-10. Make a small copy change in module `63`.
-11. Commit the record.
-12. Click `Rebuild Library`.
-13. Return to the demo layout and reload the viewer.
-
-That exercise shows the basic first-demo contract. You see where the modules live, how the cache is refreshed, how FileMaker builds context, and how JavaScript renders from it.
-
-The main demo layout uses a small set of fields:
-
-| Field | Purpose |
-| --- | --- |
-| `FOCUS::g_wv_demo_title` | visible demo title used in the payload |
-| `FOCUS::g_wv_demo_movie_id` | selected movie id |
-| `FOCUS::g_wv_demo_genre_id` | selected genre id |
-| `FOCUS::g_wv_module_index` | page/module index to load, set to `62` for this demo |
-| `FOCUS::g_wv_context_json` | visible JSON payload built by FileMaker |
-| `FOCUS::g_wv_status` | smoke-test/status text for the reader |
-
-The movie and genre fields use existing value lists from the stripped file. That keeps the demo grounded in FileMaker data without asking the reader to care about the full original schema. The payload field is intentionally visible. If the reader cannot see what FileMaker is about to send into the Web Viewer, the demo is asking for trust where it should be offering evidence.
+Two layouts matter: `WV Framework - Modules`, where the code library lives, and `WV Framework - Demo`, where FileMaker builds context, loads `wv_main`, and pushes the payload. The exact fields, scripts, and reconstruction notes remain in the downloadable file and source exports. Here, they matter only when they expose one of the framework contracts.
 
 ![The native Part One demo after FileMaker builds its initial JSON context; the payload is visible while the Web Viewer remains blank.](<screenshots/01-initial-context-built-native.png>)
 
-The buttons are equally direct:
-
-| Button | Script |
-| --- | --- |
-| Build Context | `WV__Demo_Build_Context` |
-| Load Viewer | `WV__Demo_Load_Viewer` |
-| Push Context | `WV__Demo_Push_Context` |
-| Run All | `WV__Demo_Run_All` |
-
-`Run All` is there for convenience. The separate buttons are there for teaching. A reader should be able to stop after each step and inspect what changed. Otherwise we are back to "click the magic button and trust me," which is how too many internal tools introduce themselves.
+The separate controls are there for teaching. A reader can stop after the context is built, after the viewer is loaded, and after the payload is pushed. `Run All` performs the same path for convenience once the individual operations are understood. Otherwise we are back to "click the magic button and trust me," which is how too many internal tools introduce themselves.
 
 ![The initial context rendered in wv_main after FileMaker pushes the payload.](<screenshots/02-initial-context-pushed-native.png>)
 
@@ -382,7 +378,7 @@ Second, the cache gives dependency expansion a stable snapshot. If module `62` e
 
 Third, the cached JSON is inspectable. If the Web Viewer renders the wrong thing, the developer can check whether the module record is wrong, the cache is stale, or the render script expanded the wrong dependency. Those are three different problems. Lumping them together under "the Web Viewer is broken" is traditional, but not especially informative.
 
-Finally, the cache gives the framework one place to invalidate and rebuild. Later installments can make that smarter with dirty markers, version tokens, or commit triggers. For now, the rebuild action stays visible so the reader sees the contract before the file starts being helpful on their behalf.
+Finally, the cache gives the framework one place to invalidate and rebuild. The final production pass will make that smarter with dirty markers, version tokens, and commit triggers. For now, the rebuild action stays visible so the reader sees the contract before the file starts being helpful on their behalf.
 
 That usefulness creates one simple rule: changing a module record is not the same thing as changing the cache. Until the cache is rebuilt, the Web Viewer may still be loading yesterday's module code with today's confidence. Computers enjoy this sort of prank; we do not have to encourage them.
 
@@ -395,37 +391,13 @@ That is intentionally manual. Everyone will survive.
 The utility button calls `WV__Demo_Rebuild_Library`. The script commits the current record, forces the library cache rebuild, clears the loaded-viewer map, and returns a small status object.
 
 ```text
-# Purpose:  Rebuild the Article 1 Web Viewer module cache after LIBRARY_CODE edits.
-# In:       none. Commit the current module record before rebuilding.
-# Out:      JSON status object.
-# Anchor:   Designed for a Rebuild Library button on WV Framework - Modules.
-# Calls:    library_json . ensure cache ( -force_rebuild ) : json
-# Modified:	07 Jul 2026, 10hr50PT — Lon Cook — lon@portagebay.com : created
-
-Set Error Capture [ On ]
-Commit Records/Requests
-[ No dialog ]
-
-Set Variable [ $_commit_error; Value:Get ( LastError ) ]
-Perform Script [ "library_json . ensure cache ( -force_rebuild ) : json"; Parameter: JSONSetElement ( "{}"
-  ; [ "force_rebuild" ; 1 ; JSONNumber ]
-) ]
-Set Variable [ $_cache_result; Value:GetAsText ( Get ( ScriptResult ) ) ]
-Set Variable [ $_cache_error; Value:Get ( LastError ) ]
-Set Variable [ $$wv_loaded_map; Value:"" ]
-Set Variable [ $_result; Value:JSONSetElement ( "{}"
-  ; [ "ok" ; Case ( $_commit_error = 0 and $_cache_error = 0 and not IsEmpty ( $_cache_result ) ; 1 ; 0 ) ; JSONBoolean ]
-  ; [ "commit_error" ; $_commit_error ; JSONNumber ]
-  ; [ "cache_error" ; $_cache_error ; JSONNumber ]
-  ; [ "cache_empty" ; IsEmpty ( $_cache_result ) ; JSONBoolean ]
-  ; [ "loaded_map_cleared" ; 1 ; JSONBoolean ]
-) ]
-Exit Script [ Result: $_result ]
+Commit the current module record
+  -> force the cached library to rebuild
+  -> clear the loaded-viewer map
+  -> return structured status
 ```
 
-Could this be more automatic? Of course. Later installments will get there.
-
-The next demo can introduce a controlled dirty marker after module edits while keeping the rebuild action visible. A later native-data demo can make loading smart enough to rebuild when the module cache is dirty. The production installment can explain the full pattern: commit trigger, dirty/version token, cache rebuild, loaded-map reset, and reload only when needed.
+Could this be more automatic? Of course. The final production pass will add the full pattern: commit trigger, dirty/version token, cache rebuild, loaded-map reset, and reload only when needed.
 
 But we should show the moving parts before hiding them. Hidden magic is still magic, even when it has a better variable name and a comment claiming it is self-documenting.
 
@@ -437,103 +409,43 @@ The visible script path is plain:
 WV__Demo_Build_Context -> WV__Demo_Load_Viewer -> WV__Demo_Push_Context
 ```
 
-`WV__Demo_Run_All` runs those three scripts in order.
+The wrapper scripts are intentionally plain. They expose the framework operations without asking the reader to begin with lower-level implementation:
+
+| Script | Role | How it participates |
+| --- | --- | --- |
+| `WV__Demo_Build_Context` | Turn FileMaker-owned selections into an explicit payload. | Reads the demo inputs, calls `. webviewer . context . build`, and stores the returned JSON where the reader can inspect it. |
+| `WV__Demo_Load_Viewer` | Install the selected page package in `wv_main`. | Calls `. webviewer . load`, which reads the cached library, expands dependencies, assembles the page, and sets the Web Viewer. |
+| `WV__Demo_Push_Context` | Deliver current FileMaker state to the loaded package. | Validates the visible JSON and calls `. webviewer . push context`, which invokes the public JavaScript context receiver. |
+| `WV__Demo_Run_All` | Orchestrate the visible path. | Runs build, load, and push in order; it introduces no new framework behavior. |
+| `WV__Demo_Rebuild_Library` | Publish committed module edits into the cached package. | Commits the module record, rebuilds the JSON library, and clears loaded-viewer state so changed code can be loaded again. |
 
 ![The retained demonstration scripts in FileMaker Script Workspace, including the four walkthrough actions and the library rebuild utility.](<screenshots/05-demo-scripts-native.png>)
 
-That flow is the point: FileMaker assembles the viewer, builds the context, sends that context into the viewer, and JavaScript renders what it is given.
+That flow is the point: FileMaker assembles the viewer, builds the context, sends that context into the viewer, and JavaScript renders what it is given. Each stop reinforces one of the contracts established earlier: FileMaker owns context, the cached library owns the code package, and loading code is different from pushing data.
 
 The demo is not trying to be clever about reloads yet. The retained `. webviewer . ensure loaded ...` scripts exist as framework carry-forward code, but they are not the visible teaching path. We use the direct load script so the reader sees what is happening.
 
 That matters because "only reload when needed" is a convenience pattern, not the lesson. If it appears too early, it hides the basic assembly line. Once the reader understands the assembly line, smart loading becomes a useful refinement instead of another mysterious layer with a friendly name, a private agenda, and a suspiciously calm status message.
 
-Before clicking anything, start on `WV Framework - Demo`.
-
-The layout should show:
-
-- a title/input area
-- a movie selector
-- a genre selector
-- the module index field, set to `62`
-- the JSON payload field
-- the status field
-- the Web Viewer object named `wv_main`
-- four buttons: `Build Context`, `Load Viewer`, `Push Context`, and `Run All`
+Before clicking anything, start on `WV Framework - Demo`. The layout exposes the FileMaker inputs, the JSON payload, a status field, the `wv_main` Web Viewer, and separate controls for `Build Context`, `Load Viewer`, `Push Context`, and `Run All`. The interface is sparse because each control corresponds to one of the contracts introduced above; decorative ambiguity has been postponed indefinitely.
 
 ![The native walkthrough starting state: context has been built without movie or genre selections, and the Web Viewer has not received it.](<screenshots/06-empty-context-built-native.png>)
 
 This first walkthrough is deliberately procedural. The reader should do the steps in order once, even though `Run All` exists. Automation is much more comforting after you have seen what it automates; before that, it is just a button with opinions.
 
-## Walkthrough Step 1: Choose Inputs
+### Step 1: Choose FileMaker State
 
 Start by choosing a movie and a genre.
 
 The exact sample values do not matter. What matters is that the values come from FileMaker fields, not from JavaScript fixtures hidden inside the page like contraband. We are teaching the boundary between the FileMaker side and the Web Viewer side, so the source of the values should be boringly obvious.
 
-In the demo file:
-
-| Input | Field |
-| --- | --- |
-| Demo title | `FOCUS::g_wv_demo_title` |
-| Movie | `FOCUS::g_wv_demo_movie_id` |
-| Genre | `FOCUS::g_wv_demo_genre_id` |
-| Page/module index | `FOCUS::g_wv_module_index` |
-
-The page/module index should be `62`. That tells the load script which page module to assemble.
-
-Teaching point: the Web Viewer should not have to discover these values. FileMaker already owns them. The cleanest first pattern is for FileMaker to package the values and send them across the boundary intentionally. Make the handoff explicit; future debugging will already have enough hobbies.
+The demo stores the selections in FileMaker fields and uses module index `62` to identify the page package. Their exact field definitions are available in the demo and DDR; the architectural point is that the Web Viewer should not have to discover values FileMaker already owns. FileMaker packages them and sends them across the boundary intentionally.
 
 Expected result: nothing dramatic happens yet. This is fine. Software that waits until it has been asked to do something is underrated and frankly showing restraint.
 
-## Walkthrough Step 2: Build Context
+### Step 2: Build Explicit Context
 
 Click `Build Context`.
-
-```text
-# Purpose:  Build the Article 1 Web Viewer context JSON from the demo input fields and show the reader the payload.
-# In:       FOCUS::g_wv_module_index
-#           FOCUS::g_wv_demo_movie_id
-#           FOCUS::g_wv_demo_genre_id
-# Out:      FOCUS::g_wv_context_json
-#           FOCUS::g_wv_status; exits with raw context JSON.
-# Anchor:   FOCUS. Writes use Set Field By Name so copied snippets do not depend on field IDs.
-# Calls:    . webviewer . context . build ( -index ; -movie_id ; -genre_id ) : json
-# Modified:	06 Jul 2026, 23hr05PT — Lon Cook — lon@portagebay.com : created
-
-Set Error Capture [ On ]
-
-Set Variable [ $_index; Value:Let (
-    [
-      raw = GetField ( "FOCUS::g_wv_module_index" )
-    ] ;
-    Case (
-      IsEmpty ( raw ) ; 62 ;
-      GetAsNumber ( raw )
-    )
-  ) ]
-Set Variable [ $_movie_id; Value:GetAsText ( GetField ( "FOCUS::g_wv_demo_movie_id" ) ) ]
-Set Variable [ $_genre_id; Value:GetAsText ( GetField ( "FOCUS::g_wv_demo_genre_id" ) ) ]
-Perform Script [ ". webviewer . context . build ( -index ; -movie_id ; -genre_id ) : json"; Parameter: JSONSetElement ( "{}"
-  ; [ "index" ; $_index ; JSONNumber ]
-  ; [ "movie_id" ; $_movie_id ; JSONString ]
-  ; [ "genre_id" ; $_genre_id ; JSONString ]
-) ]
-Set Variable [ $_context_json; Value:Get ( ScriptResult ) ]
-Set Variable [ $_context_display; Value:Case (
-    JSONFormatElements ( $_context_json ) = "?" ; $_context_json ;
-    JSONFormatElements ( $_context_json )
-  ) ]
-Set Variable [ $_status; Value:Case (
-    JSONFormatElements ( $_context_json ) = "?" ;
-      "Build context failed: the framework script returned invalid JSON." ;
-    "Context built for module " & $_index &
-      If ( not IsEmpty ( $_movie_id ) ; " | movie_id " & $_movie_id ; "" ) &
-      If ( not IsEmpty ( $_genre_id ) ; " | genre_id " & $_genre_id ; "" )
-  ) ]
-Set Field By Name [ "FOCUS::g_wv_context_json"; $_context_display ]
-Set Field By Name [ "FOCUS::g_wv_status"; $_status ]
-Exit Script [ Result: $_context_json ]
-```
 
 `WV__Demo_Build_Context` reads the selected demo values, creates a JSON object, stores it in `FOCUS::g_wv_context_json`, and updates `FOCUS::g_wv_status`.
 
@@ -581,43 +493,9 @@ If this step fails, the Web Viewer is not the problem yet. The viewer has not be
 
 Teaching point: visible JSON turns a vague integration problem into a concrete handoff. If the Web Viewer displays the wrong value later, the first question is simple: did FileMaker send the wrong value, or did JavaScript render it incorrectly? This is better than the traditional method of staring at both sides until one confesses.
 
-## Walkthrough Step 3: Load The Viewer
+### Step 3: Load The Viewer Package
 
 Click `Load Viewer`.
-
-```text
-# Purpose:  Load the selected framework module into the demo Web Viewer object.
-# In:       FOCUS::g_wv_module_index; defaults to module 62 when empty.
-# Out:      FOCUS::g_wv_status; exits with the framework load script result.
-# Anchor:   FOCUS. Web Viewer object name is wv_main.
-# Calls:    . webviewer . load ( index ; -object_name )
-# Modified:	06 Jul 2026, 23hr07PT — Lon Cook — lon@portagebay.com : created
-
-Set Error Capture [ On ]
-
-Set Variable [ $_index; Value:Let (
-    [
-      raw = GetField ( "FOCUS::g_wv_module_index" )
-    ] ;
-    Case (
-      IsEmpty ( raw ) ; 62 ;
-      GetAsNumber ( raw )
-    )
-  ) ]
-Set Variable [ $_object_name; Value:"wv_main" ]
-Perform Script [ ". webviewer . load ( index ; -object_name )"; Parameter: JSONSetElement ( "{}"
-  ; [ "index" ; $_index ; JSONNumber ]
-  ; [ "object_name" ; $_object_name ; JSONString ]
-) ]
-Set Variable [ $_load_result; Value:GetAsText ( Get ( ScriptResult ) ) ]
-Set Variable [ $_status; Value:List (
-    GetField ( "FOCUS::g_wv_status" ) ;
-    "Viewer loaded: module " & $_index & " -> " & $_object_name &
-      If ( not IsEmpty ( $_load_result ) ; " | result: " & $_load_result ; "" )
-  ) ]
-Set Field By Name [ "FOCUS::g_wv_status"; $_status ]
-Exit Script [ Result: $_load_result ]
-```
 
 `WV__Demo_Load_Viewer` calls `. webviewer . load ( index ; -object_name )` for module `62` and object name `wv_main`.
 
@@ -647,51 +525,13 @@ If the viewer shows a render error, the problem is likely in module assembly, de
 
 Teaching point: loading answers the question, "Can FileMaker assemble and display this Web Viewer package?" It does not answer the question, "Did the current FileMaker context reach JavaScript?" Once the viewer package is loaded, changing the visualization should usually be a context push, not a full reload.
 
-## Walkthrough Step 4: Push Context
+### Step 4: Push Context
 
 Click `Push Context`.
 
-```text
-# Purpose:  Push the visible context JSON field into the loaded Web Viewer.
-# In:       FOCUS::g_wv_context_json; builds context first if the field is empty.
-# Out:      FOCUS::g_wv_status; exits with the framework push result.
-# Anchor:   FOCUS. Web Viewer object name is wv_main.
-# Calls:    WV__Demo_Build_Context, . webviewer . push context ( -object_name ; -context_json )
-# Modified:	06 Jul 2026, 23hr09PT — Lon Cook — lon@portagebay.com : created
-
-Set Error Capture [ On ]
-
-Set Variable [ $_object_name; Value:"wv_main" ]
-Set Variable [ $_context_json; Value:GetAsText ( GetField ( "FOCUS::g_wv_context_json" ) ) ]
-If [ IsEmpty ( $_context_json ) ]
-Perform Script [ "WV__Demo_Build_Context"; Parameter: "" ]
-Set Variable [ $_context_json; Value:GetAsText ( Get ( ScriptResult ) ) ]
-End If
-If [ JSONFormatElements ( $_context_json ) = "?" ]
-Set Variable [ $_status; Value:List (
-    GetField ( "FOCUS::g_wv_status" ) ;
-    "Push skipped: context JSON is not valid."
-  ) ]
-Set Field By Name [ "FOCUS::g_wv_status"; $_status ]
-Exit Script [ Result: "?" ]
-End If
-Perform Script [ ". webviewer . push context ( -object_name ; -context_json )"; Parameter: JSONSetElement ( "{}"
-  ; [ "object_name" ; $_object_name ; JSONString ]
-  ; [ "context_json" ; $_context_json ; JSONString ]
-) ]
-Set Variable [ $_push_result; Value:GetAsText ( Get ( ScriptResult ) ) ]
-Set Variable [ $_status; Value:List (
-    GetField ( "FOCUS::g_wv_status" ) ;
-    "Context pushed to " & $_object_name &
-      If ( not IsEmpty ( $_push_result ) ; " | result: " & $_push_result ; "" )
-  ) ]
-Set Field By Name [ "FOCUS::g_wv_status"; $_status ]
-Exit Script [ Result: $_push_result ]
-```
-
 `WV__Demo_Push_Context` takes the JSON in `FOCUS::g_wv_context_json` and performs JavaScript in the Web Viewer. The JavaScript receiver accepts raw JSON, parses it, stores it as the current context, and asks the renderer to draw.
 
-This is the speed payoff. The Web Viewer does not need to be rebuilt just because the selected movie or genre changed. FileMaker can build a new payload, push it into the existing page, and let JavaScript update the rendered view from that context. The user sees a changed visualization; the framework avoids reassembling the whole package like it is being paid by the byte.
+This is the speed payoff. The Web Viewer does not need to be rebuilt just because the selected movie or genre changed. FileMaker can build a new payload, push it into the existing page, and let JavaScript update the rendered view from that context. The user sees a changed visualization without waiting for the framework to reassemble the whole package.
 
 Module `23` is the context boundary. FileMaker calls `WV_FM_PUSH(raw)`. The bridge parses the JSON, replaces the current context through `WV.setContext(ctx)`, and then notifies the renderer. The renderer can ask for the current value with `WV.getContext()`, but it does not need to know how FileMaker built or delivered the payload. That is the point; nobody wins when every layer knows everybody else's plumbing.
 
@@ -797,35 +637,11 @@ This is also where the split helps debugging. If loading worked and push failed,
 
 Teaching point: this is the first complete trip from FileMaker-owned data to Web Viewer-owned rendering. Strictly speaking, it is not a loop yet; nothing comes back to FileMaker. That comes next. For now, the important pattern is already useful: load the package when the code changes; push context when the data changes.
 
-## Walkthrough Step 5: Run All
+### Step 5: Run The Whole Path
 
 Now click `Run All`.
 
-`WV__Demo_Run_All` is the convenience script.
-
-```text
-# Purpose:  Run the full Article 1 demo path: build context, load viewer, push context.
-# In:       Same demo fields used by WV__Demo_Build_Context.
-# Out:      FOCUS::g_wv_context_json, FOCUS::g_wv_status; exits with the final push result.
-# Anchor:   FOCUS. This is button glue for teaching; the framework logic stays in the retained scripts.
-# Calls:    WV__Demo_Build_Context, WV__Demo_Load_Viewer, WV__Demo_Push_Context
-# Modified:	06 Jul 2026, 23hr13PT — Lon Cook — lon@portagebay.com : created
-
-Set Error Capture [ On ]
-
-Perform Script [ "WV__Demo_Build_Context"; Parameter: "" ]
-Perform Script [ "WV__Demo_Load_Viewer"; Parameter: "" ]
-Perform Script [ "WV__Demo_Push_Context"; Parameter: "" ]
-Set Variable [ $_push_result; Value:GetAsText ( Get ( ScriptResult ) ) ]
-Set Variable [ $_status; Value:List (
-  GetField ( "FOCUS::g_wv_status" ) ;
-  "Run all complete."
-) ]
-Set Field By Name [ "FOCUS::g_wv_status"; $_status ]
-Exit Script [ Result: $_push_result ]
-```
-
-It runs:
+`WV__Demo_Run_All` is convenience glue. It runs:
 
 1. `WV__Demo_Build_Context`
 2. `WV__Demo_Load_Viewer`
@@ -837,7 +653,7 @@ Expected result: the status field should show that context was built and pushed 
 
 Teaching point: `Run All` is not a different architecture. It is just the three visible steps wrapped for convenience. That distinction matters because later demos will introduce smarter wrappers; the reader should already know what those wrappers are wrapping. Otherwise a wrapper becomes a blanket, and then everyone pretends the shape underneath is obvious.
 
-## Walkthrough Step 6: Edit A Module
+### Step 6: Edit A Module
 
 To see the library model in action, make a small, harmless text change in module `63`, the context renderer.
 
@@ -909,26 +725,31 @@ This first demo is intentionally one-way:
 FileMaker -> Web Viewer
 ```
 
-That restraint is intentional. The source Flicks file has richer Web Viewer surfaces available, including a ranked-list visualization, but starting there would force native data shaping, repeated-row rendering, selected-state rules, action handling, and smarter reload behavior into the first example. All useful. Too much for one sitting, unless the goal is to make the reader regret having coffee.
+That restraint is intentional. The source Flicks file has richer Web Viewer surfaces available, including a ranked-list visualization, but starting there would force native data shaping, repeated-row rendering, selected-state rules, action handling, and smarter reload behavior into the first example. All useful; too much for the first pass.
 
 So we stop at context in. The viewer does not send actions back to FileMaker yet. It does not update records. It does not own selected state. It does not pretend to be a tiny web app wearing a FileMaker costume and asking for production credentials.
 
 The remaining articles build the framework in layers:
 
-1. `Part 2: Letting the Web Viewer Talk Back to FileMaker`
-   **Actions Out**
+1. **Beyond the Web Viewer Blob: The Blob Talks Back**
+   *Actions Out*
 
-   The next piece adds action envelopes: a way for JavaScript to report user intent back to FileMaker without taking ownership of FileMaker state. The focus is the contract between the viewer and FileMaker; the demo file gives that contract something concrete to run.
+   The next piece adds action envelopes: a way for JavaScript to report user intent back to FileMaker without taking ownership of FileMaker state. The return path is another reusable contract, not an invitation for browser code to declare independence.
 
-2. `Part 3: Rendering FileMaker Records in the Web Viewer`
-   **Native Data In**
+2. **Beyond the Web Viewer Blob: Let the Record Show**
+   *Native FileMaker Records In, Ranked Views Out*
 
-   Then the payload gets more serious. FileMaker shapes native records into richer JSON, and the viewer renders something closer to the ranked-list surface from Flicks. The focus shifts from the bridge itself to the shape of the data moving through it.
+   Then the payload gets more serious. FileMaker shapes native records into richer JSON, and the viewer renders the ranked-list surface from Flicks. The bridge is already established, so the focus shifts to native data shaping, stable ids, repeated rows, and acknowledged selection.
 
-3. `Part 4: Making the Framework Production-Ready`
-   **Production Pattern**
+3. **Beyond the Web Viewer Blob: The Prompt Thickens**
+   *Working With an AI Co-Developer*
 
-   The final piece tightens the production pattern: dirty/version tokens, cache rebuild rules, loaded-map reset, smarter loading, and a clearer deployment contract. The point is not to hide the machinery; it is to automate the parts the reader has already seen.
+   The fourth pass makes the AI-assisted development loop explicit: brief, supplied context, proposed module changes, human review, native FileMaker testing, failure evidence, and revision. The framework gives that work somewhere disciplined to land; the richer hybrid interface gives it something worth building.
+
+4. **Beyond the Web Viewer Blob: Cache Me If You Can**
+   *State, Loading, and the FileMaker Web Viewer Production Pattern*
+
+   The final pass hardens the cumulative framework with dirty/version tokens, cache rebuild rules, loaded-state tracking, smarter loading, and deployment discipline. The point is not to hide the machinery; it is to automate machinery the reader has already seen and can still inspect.
 
 
 ## Takeaway

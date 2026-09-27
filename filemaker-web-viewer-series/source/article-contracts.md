@@ -8,6 +8,10 @@ The visualizations are teaching surfaces, not the subject of the series. Each de
 
 Use concrete fields, scripts, modules, payloads, and screenshots as evidence. Explain a visualization's particular mechanics only as far as the reader needs to follow the method being taught. Exact schema references, module indexes, full script steps, and complete code belong in the build instructions and source exports when they do not advance the published argument.
 
+The early installments establish the framework vocabulary, conceptual flows, and reusable templates; they may use a more deliberate walkthrough so the reader can see each new contract operate. That walkthrough should follow the framework, not narrate construction of the demo file. Later installments inherit those foundations and should abbreviate previously established cache, load, context, action, and ownership mechanics unless a contract changes or the new behavior depends on a distinction the reader must inspect again.
+
+Use the editorial test: does a passage teach a reusable framework concept, or does it merely describe this demo file? Keep the first in the published body. Move the second to build instructions, source evidence, or the demo itself unless it is required to prove the concept natively.
+
 ## Series Identity And Publication Roadmap
 
 Use `Beyond the Web Viewer Blob:` as the fixed public title prefix. The titles should read as parts of one cumulative argument, not as unrelated posts that happen to know the same FileMaker scripts.
@@ -17,6 +21,7 @@ Use `Beyond the Web Viewer Blob:` as the fixed public title prefix. The titles s
    - Establish named modules, explicit assembly, and one-way context push.
 
 2. **Beyond the Web Viewer Blob: The Blob Talks Back**
+   - Subtitle: *Actions Out*
    - Add action envelopes and the JavaScript-to-FileMaker return path.
    - Use `Context in. Actions out. FileMaker owns the result.` as the recurring body formulation, not as a second competing title.
 
@@ -76,6 +81,8 @@ No Web Viewer actions, native record arrays, ranked-list renderer, production re
 The viewer can receive context but cannot report user intent. The next pass lets it talk back without giving it ownership of FileMaker state.
 
 ### 2. Beyond the Web Viewer Blob: The Blob Talks Back
+
+*Actions Out*
 
 **Editorial job**
 
