@@ -1,0 +1,445 @@
+<?xml version='1.0' encoding='utf-8'?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>FULL REPLACEMENT for script: library_json . ensure cache ( -force_rebuild ) : json</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Select all existing steps in this script, paste this snippet, then smoke test.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText>#__________________________________________________</StepText>
+    <Text>__________________________________________________</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># Purpose:	Ensures persisted LIBRARY_CODE JSON cache is current; rebuilds if needed.</StepText>
+    <Text> Purpose:	Ensures persisted LIBRARY_CODE JSON cache is current; rebuilds if needed.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># In:			-FORCE_REBUILD (optional) boolean
+  	</StepText>
+    <Text> In:			-FORCE_REBUILD (optional) boolean
+  	</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># Out:		JSON</StepText>
+    <Text> Out:		JSON</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># Notes:		PSOS-safe: reads/writes records, not globals.</StepText>
+    <Text> Notes:		PSOS-safe: reads/writes records, not globals.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># Modified:	22 Jan 2026, 01hr30PT — Lon Cook — lon@deconstrukted.com : persist rebuilt cache into SOLUTION
+  			17 Jan 2026, 19hr30PT — Lon Cook — lon@deconstrukted.com : created</StepText>
+    <Text> Modified:	22 Jan 2026, 01hr30PT — Lon Cook — lon@deconstrukted.com : persist rebuilt cache into SOLUTION
+  			17 Jan 2026, 19hr30PT — Lon Cook — lon@deconstrukted.com : created</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\</StepText>
+    <Text> \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\</Text>
+  </Step>
+  <Step enable="True" id="71" name="Loop">
+    <StepText>Loop [ Flush: Always ]</StepText>
+    <Restore state="False" />
+    <FlushType value="Always" />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</StepText>
+    <Text> D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># Instantiates:
+  	$_error_message
+  	$_invalid_params
+  	$_force_rebuild</StepText>
+    <Text> Instantiates:
+  	$_error_message
+  	$_invalid_params
+  	$_force_rebuild</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+    ~p = Get ( ScriptParameter )
+  ; $_force_rebuild = GetAsNumber ( JSONGetElement ( ~p ; "force_rebuild" ) )
+  ; $_invalid_params = ""
+  ; $_error_message = Case ( not IsEmpty ( $_invalid_params ) ; "Missing/invalid parameter(s): " &amp; Substitute ( $_invalid_params ; ¶ ; ", " ) ; "" )
+] ;
+  Case ( not IsEmpty ( $_invalid_params ) ; 10 ; 0 )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_error</Name>
+  </Step>
+  <Step enable="True" id="72" name="Exit Loop If">
+    <StepText>Exit Loop If [ $_error ]</StepText>
+    <Calculation>$_error</Calculation>
+    <DisplayCalculation>
+      <Chunk type="NoRef">$_error</Chunk>
+    </DisplayCalculation>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># W I N D O W   M A N A G E M E N T</StepText>
+    <Text> W I N D O W   M A N A G E M E N T</Text>
+  </Step>
+  <Step enable="True" id="122" name="New Window">
+    <StepText>New Window [ Style: Document; Name: Get ( ScriptName ); Using layout: &lt;unknown&gt;; Top: -10000; Left: -10000; Close: Yes; Minimize: Yes; Maximize: Yes; Resize: Yes; Menu Bar: Yes; Dim parent window: No; Toolbars: Yes ]</StepText>
+    <LayoutDestination value="SelectedLayout" />
+    <Name>
+      <Calculation>Get ( ScriptName )</Calculation>
+      <DisplayCalculation>
+        <Chunk type="FunctionRef">Get</Chunk>
+        <Chunk type="NoRef"> ( </Chunk>
+        <Chunk type="FunctionRef">ScriptName</Chunk>
+        <Chunk type="NoRef"> )</Chunk>
+      </DisplayCalculation>
+    </Name>
+    <DistanceFromTop>
+      <Calculation>-10000</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">-10000</Chunk>
+      </DisplayCalculation>
+    </DistanceFromTop>
+    <DistanceFromLeft>
+      <Calculation>-10000</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">-10000</Chunk>
+      </DisplayCalculation>
+    </DistanceFromLeft>
+    <NewWndStyles DimParentWindow="No" Toolbars="Yes" MenuBar="Yes" Style="Document" Close="Yes" Minimize="Yes" Maximize="Yes" Resize="Yes" Styles="1076299266" />
+    <Layout id="127" name="" />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># R E A D   D E S I R E D   +   C A C H E D   V E R S I O N S</StepText>
+    <Text> R E A D   D E S I R E D   +   C A C H E D   V E R S I O N S</Text>
+  </Step>
+  <Step enable="True" id="6" name="Go to Layout">
+    <StepText>Go to Layout [ “SOLUTION” (SOLUTION) ]</StepText>
+    <LayoutDestination value="SelectedLayout" />
+    <Layout id="149" name="SOLUTION" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_desiredVersion; Value:GetAsText ( Max ( LIBRARY_CODE__all::modified ) ) ]</StepText>
+    <Value>
+      <Calculation>GetAsText ( Max ( LIBRARY_CODE__all::modified ) )</Calculation>
+      <DisplayCalculation />
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_desiredVersion</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_cachedVersion; Value:SOLUTION::library_code_version ]</StepText>
+    <Value>
+      <Calculation>SOLUTION::library_code_version</Calculation>
+      <DisplayCalculation>
+        <Chunk type="FieldRef">
+          <Field table="SOLUTION" id="20" name="library_code_version" />
+        </Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_cachedVersion</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_cachedJSON; Value:SOLUTION::library_code_json ]</StepText>
+    <Value>
+      <Calculation>SOLUTION::library_code_json</Calculation>
+      <DisplayCalculation>
+        <Chunk type="FieldRef">
+          <Field table="SOLUTION" id="19" name="library_code_json" />
+        </Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_cachedJSON</Name>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># D E C I D E   W H E T H E R   T O   B U I L D</StepText>
+    <Text> D E C I D E   W H E T H E R   T O   B U I L D</Text>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_needsBuild; Value:Case (
+  	  $_force_rebuild
+  	; 1
+  
+  	; IsEmpty ( $_cachedJSON )
+  	; 1
+  
+  	; $_cachedVersion ≠ $_desiredVersion
+  	; 1
+  
+  	; 0
+  ) ]</StepText>
+    <Value>
+      <Calculation>Case (
+  	  $_force_rebuild
+  	; 1
+  
+  	; IsEmpty ( $_cachedJSON )
+  	; 1
+  
+  	; $_cachedVersion ≠ $_desiredVersion
+  	; 1
+  
+  	; 0
+  )</Calculation>
+      <DisplayCalculation>
+        <Chunk type="FunctionRef">Case</Chunk>
+        <Chunk type="NoRef"> (
+  	  $_force_rebuild
+  	; 1
+  
+  	; </Chunk>
+        <Chunk type="FunctionRef">IsEmpty</Chunk>
+        <Chunk type="NoRef"> ( $_cachedJSON )
+  	; 1
+  
+  	; $_cachedVersion ≠ $_desiredVersion
+  	; 1
+  
+  	; 0
+  )</Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_needsBuild</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <StepText>If [  $_needsBuild ]</StepText>
+    <Restore state="False" />
+    <Calculation> $_needsBuild</Calculation>
+    <DisplayCalculation>
+      <Chunk type="NoRef"> $_needsBuild</Chunk>
+    </DisplayCalculation>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "version" ; $_desiredVersion ; JSONString ]
+)</Calculation>
+    <Script id="437" name="library_json . build cache( version ) : json" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_builtJSON; Value:Get ( ScriptResult ) ]</StepText>
+    <Value>
+      <Calculation>Get ( ScriptResult )</Calculation>
+      <DisplayCalculation>
+        <Chunk type="FunctionRef">Get</Chunk>
+        <Chunk type="NoRef"> ( </Chunk>
+        <Chunk type="FunctionRef">ScriptResult</Chunk>
+        <Chunk type="NoRef"> )</Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_builtJSON</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <StepText>If [ IsEmpty ( $_builtJSON ) ]</StepText>
+    <Restore state="False" />
+    <Calculation>IsEmpty ( $_builtJSON )</Calculation>
+    <DisplayCalculation>
+      <Chunk type="FunctionRef">IsEmpty</Chunk>
+      <Chunk type="NoRef"> ( $_builtJSON )</Chunk>
+    </DisplayCalculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_result; Value:"" ]</StepText>
+    <Value>
+      <Calculation>""</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">""</Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_result</Name>
+  </Step>
+  <Step enable="True" id="69" name="Else">
+    <StepText>Else [  ]</StepText>
+    <Restore state="False" />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># Persist rebuilt cache into SOLUTION</StepText>
+    <Text> Persist rebuilt cache into SOLUTION</Text>
+  </Step>
+  <Step enable="True" id="76" name="Set Field">
+    <StepText>Set Field [ SOLUTION__all::library_code_json; $_builtJSON ]</StepText>
+    <Calculation>$_builtJSON</Calculation>
+    <DisplayCalculation>
+      <Chunk type="NoRef">$_builtJSON</Chunk>
+    </DisplayCalculation>
+    <Field table="SOLUTION__all" id="19" name="library_code_json" />
+  </Step>
+  <Step enable="True" id="76" name="Set Field">
+    <StepText>Set Field [ SOLUTION__all::library_code_version; $_desiredVersion ]</StepText>
+    <Calculation>$_desiredVersion</Calculation>
+    <DisplayCalculation>
+      <Chunk type="NoRef">$_desiredVersion</Chunk>
+    </DisplayCalculation>
+    <Field table="SOLUTION__all" id="20" name="library_code_version" />
+  </Step>
+  <Step enable="True" id="75" name="Commit Records/Requests">
+    <StepText>Commit Records/Requests
+  [ No dialog ]</StepText>
+    <NoInteract state="True" />
+    <Option state="False" />
+    <ESSForceCommit state="False" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_result; Value:$_builtJSON ]</StepText>
+    <Value>
+      <Calculation>$_builtJSON</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">$_builtJSON</Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_result</Name>
+  </Step>
+  <Step enable="True" id="70" name="End If">
+    <StepText>End If</StepText>
+  </Step>
+  <Step enable="True" id="69" name="Else">
+    <StepText>Else [  ]</StepText>
+    <Restore state="False" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <StepText>Set Variable [ $_result; Value:$_cachedJSON ]</StepText>
+    <Value>
+      <Calculation>$_cachedJSON</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">$_cachedJSON</Chunk>
+      </DisplayCalculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+      <DisplayCalculation>
+        <Chunk type="NoRef">1</Chunk>
+      </DisplayCalculation>
+    </Repetition>
+    <Name>$_result</Name>
+  </Step>
+  <Step enable="True" id="70" name="End If">
+    <StepText>End If</StepText>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="72" name="Exit Loop If">
+    <StepText>Exit Loop If [ True // End single-pass loop ]</StepText>
+    <Calculation>True // End single-pass loop</Calculation>
+    <DisplayCalculation>
+      <Chunk type="FunctionRef">True</Chunk>
+      <Chunk type="NoRef"> </Chunk>
+      <Chunk type="FunctionRef">// End single-pass loop</Chunk>
+    </DisplayCalculation>
+  </Step>
+  <Step enable="True" id="73" name="End Loop">
+    <StepText>End Loop</StepText>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># ////////////////////////////////////////////</StepText>
+    <Text> ////////////////////////////////////////////</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText># C L E A N - U P</StepText>
+    <Text> C L E A N - U P</Text>
+  </Step>
+  <Step enable="True" id="121" name="Close Window">
+    <StepText>Close Window [ Name: Get ( ScriptName ); Current file ]</StepText>
+    <LimitToWindowsOfCurrentFile state="True" />
+    <Window value="ByName" />
+    <Name>
+      <Calculation>Get ( ScriptName )</Calculation>
+      <DisplayCalculation>
+        <Chunk type="FunctionRef">Get</Chunk>
+        <Chunk type="NoRef"> ( </Chunk>
+        <Chunk type="FunctionRef">ScriptName</Chunk>
+        <Chunk type="NoRef"> )</Chunk>
+      </DisplayCalculation>
+    </Name>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="6" name="Go to Layout">
+    <StepText>Go to Layout [ original layout ]</StepText>
+    <LayoutDestination value="OriginalLayout" />
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "error" ; $_error ; JSONNumber ]
+  ; [ "error_logged" ; $_error_logged ; Case ( IsEmpty ( $_error_logged ) ; JSONNull ; JSONString ) ]
+  ; [ "error_message" ; $_error_message ; Case ( IsEmpty ( $_error_message ) ; JSONNull ; JSONString ) ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText />
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <StepText>#__________________________________________________</StepText>
+    <Text>__________________________________________________</Text>
+  </Step>
+</fmxmlsnippet>

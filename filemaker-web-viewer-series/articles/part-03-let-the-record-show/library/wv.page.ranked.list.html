@@ -1,0 +1,47 @@
+<!-- ============================================================
+   W V   R A N K E D   L I S T   P A G E
+   Index: 41
+   Name:  wv.page.ranked.list.html
+
+   Purpose:
+     - Assemble the ranked-list teaching surface
+     - Keep the initial loading state visible before FileMaker pushes context
+
+   Dependencies:
+     - LIB[20] wv.platform.base.html
+     - LIB[21] wv.platform.base.css
+     - LIB[22] wv.platform.runtime.js
+     - LIB[23] wv.platform.context.js
+     - LIB[24] wv.platform.boot.js
+     - LIB[25] wv.platform.actions.js
+     - LIB[42] wv.renderer.ranked.list.js
+
+   Exports:
+     - Page markup for the ranked-list renderer
+
+   Public API:
+     - None
+
+   Notes:
+     - FileMaker supplies the ordered records and authoritative selection.
+     - JavaScript renders rows and reports selection intent through WV.sendAction.
+
+   History:
+     - 01 Aug 2026 — Lon Cook — lon@portagebay.com : created
+   ============================================================ -->
+
+‡‡LIB[20]‡‡
+
+<!-- PAGE_HEAD -->
+<title>Ranked Movies</title>
+
+<!-- PAGE_BODY -->
+<section class="wv-ranked-page" data-wv-page="ranked-list">
+  <div class="wv-ranked-loading" role="status">Loading ranked records…</div>
+</section>
+
+<!-- PAGE_SCRIPTS -->
+<script>
+  ‡‡LIB[25]‡‡
+  ‡‡LIB[42]‡‡
+</script>

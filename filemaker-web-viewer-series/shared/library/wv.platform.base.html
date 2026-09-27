@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <meta name="color-scheme" content="dark light" />
+
+ <style>
+  ‡‡LIB[21]‡‡
+ </style>
+
+ <!-- PAGE_HEAD -->
+</head>
+
+<body>
+ <div id="wv-root">
+  <!-- PAGE_BODY -->
+ </div>
+
+ <!-- EARLY LOADING FLAG (prevents premature renders / flicker) -->
+ <script>
+  (function () {
+   try {
+    window.WV = window.WV || {};
+    WV._state = WV._state || {};
+    WV._state.loading = true;   // cleared in LIB[24] boot
+   } catch (e) {}
+  })();
+ </script>
+
+ <script>
+  ‡‡LIB[22]‡‡
+ </script>
+ <script>
+  ‡‡LIB[23]‡‡
+ </script>
+ <script>
+  ‡‡LIB[24]‡‡
+ </script>
+
+ <!-- PAGE_SCRIPTS -->
+</body>
+</html>
+

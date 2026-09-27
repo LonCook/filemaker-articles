@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace the old #()-encoded error Exit Script result.</Text>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "error" ; $_error ; JSONNumber ]
+  ; [ "error_logged" ; $_error_logged ; Case ( IsEmpty ( $_error_logged ) ; JSONNull ; JSONString ) ]
+  ; [ "error_message" ; $_error_message ; Case ( IsEmpty ( $_error_message ) ; JSONNull ; JSONString ) ]
+)]]></Calculation>
+  </Step>
+</fmxmlsnippet>

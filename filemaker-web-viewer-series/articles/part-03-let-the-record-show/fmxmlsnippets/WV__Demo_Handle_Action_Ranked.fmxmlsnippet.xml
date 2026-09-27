@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)"><Text> Purpose:	Receive an action envelope from the Web Viewer and make it visible in FileMaker.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> In:			Get ( ScriptParameter ) as raw JSON.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Out:		JSON status object.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Anchor:		MOVIE on WV Framework - Demo. Demo teaching glue; does not update production records.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Calls:		WV__Demo_Build_Context, WV__Demo_Load_Viewer, WV__Demo_Push_Context.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Modified:	01 Aug 2026, 22hr42PT — Lon Cook — lon@portagebay.com : reload the ranked module after native record navigation before pushing acknowledgement context.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Modified:	01 Aug 2026, 21hr22PT — Lon Cook — lon@portagebay.com : navigate the ranked native found set to the requested MOVIE record before acknowledgement.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Modified:	01 Aug 2026, 19hr34PT — Lon Cook — lon@portagebay.com : validate ranked stable-id intent and acknowledge FileMaker-owned selection.</Text></Step>
+  <Step enable="True" id="89" name="# (comment)"><Text> Modified:	19 Jul 2026, 20hr24PT — Lon Cook - lon@portagebay.com : created</Text></Step>
+  <Step enable="True" id="86" name="Set Error Capture"><Set state="True"/></Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsText ( Get ( ScriptParameter ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[JSONFormatElements ( $_raw )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_formatted</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[EvaluationError ( JSONFormatElements ( $_raw ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_json_error</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[EvaluationError ( JSONGetElementType ( $_raw ; "" ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_root_error</Name>
+  </Step>
+  <Step enable="True" id="68" name="If"><Restore state="False"/><Calculation><![CDATA[IsEmpty ( $_raw ) or $_formatted = "?" or
+$_json_error <> 0 or $_root_error <> 0 or
+JSONGetElementType ( $_raw ; "" ) <> JSONObject]]></Calculation></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_raw]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[""]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA["Rejected action: invalid JSON envelope."]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="103" name="Exit Script"><Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_json" ; JSONString ]
+)]]></Calculation></Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsText ( JSONGetElement ( $_raw ; "type" ) )]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_type</Name></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $_raw ; "__wv_action.version" ) )]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_version</Name></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsText ( JSONGetElement ( $_raw ; "__wv_action.source" ) )]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_source</Name></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $_raw ; "__wv_action.page" ) )]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_page</Name></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsText ( JSONGetElement ( $_raw ; "payload.movie_id" ) )]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_payload_movie_id</Name></Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[Let ( [
+  type_error = EvaluationError ( JSONGetElement ( $_raw ; "type" ) ) ;
+  payload_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload" ) ) ;
+  meta_error = EvaluationError ( JSONGetElementType ( $_raw ; "__wv_action" ) ) ;
+  version_error = EvaluationError ( JSONGetElement ( $_raw ; "__wv_action.version" ) ) ;
+  source_error = EvaluationError ( JSONGetElement ( $_raw ; "__wv_action.source" ) )
+] ;
+  type_error <> 0 or payload_error <> 0 or meta_error <> 0 or
+  version_error <> 0 or source_error <> 0 or
+  IsEmpty ( $_type ) or IsEmpty ( $_source ) or $_version <> 1 or
+  JSONGetElementType ( $_raw ; "type" ) <> JSONString or
+  JSONGetElementType ( $_raw ; "payload" ) <> JSONObject or
+  JSONGetElementType ( $_raw ; "__wv_action" ) <> JSONObject or
+  JSONGetElementType ( $_raw ; "__wv_action.version" ) <> JSONNumber or
+  JSONGetElementType ( $_raw ; "__wv_action.source" ) <> JSONString
+)]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_invalid_envelope</Name>
+  </Step>
+  <Step enable="True" id="68" name="If"><Restore state="False"/><Calculation><![CDATA[$_invalid_envelope]]></Calculation></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_formatted]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[""]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA["Rejected action: envelope shape is not valid."]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="103" name="Exit Script"><Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_envelope" ; JSONString ]
+)]]></Calculation></Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[$_type = "demo.inspect_context" or
+$_type = "demo.mark_movie" or
+$_type = "ranked.select_movie"]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_known_action</Name>
+  </Step>
+  <Step enable="True" id="68" name="If"><Restore state="False"/><Calculation><![CDATA[not $_known_action]]></Calculation></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_formatted]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_type]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA["Rejected action: unknown type " & $_type]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="103" name="Exit Script"><Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "unknown_action" ; JSONString ]
+  ; [ "type" ; $_type ; JSONString ]
+)]]></Calculation></Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[$_type = "ranked.select_movie"]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_ranked_action</Name></Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[Let ( [
+  payload_type_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload.movie_id" ) ) ;
+  context_json = GetAsText ( GetField ( "FOCUS::g_wv_context_json" ) ) ;
+  rows_error = EvaluationError ( JSONGetElementType ( context_json ; "ranked_view.rows" ) ) ;
+  row_count = Case ( rows_error ; 0 ; ValueCount ( JSONListKeys ( context_json ; "ranked_view.rows" ) ) ) ;
+  found = While (
+    [ i = 0 ; match = 0 ] ;
+    i < row_count and not match ;
+    [
+      match = GetAsText ( JSONGetElement ( context_json ; "ranked_view.rows[" & i & "].movie_id" ) ) = $_payload_movie_id ;
+      i = i + 1
+    ] ;
+    match
+  )
+] ;
+  $_ranked_action and (
+    $_page <> 41 or
+    $_source <> "wv.renderer.ranked.list" or
+    payload_type_error <> 0 or
+    JSONGetElementType ( $_raw ; "payload.movie_id" ) <> JSONString or
+    IsEmpty ( $_payload_movie_id ) or
+    rows_error <> 0 or
+    not found
+  )
+)]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_invalid_ranked_selection</Name>
+  </Step>
+  <Step enable="True" id="68" name="If"><Restore state="False"/><Calculation><![CDATA[$_invalid_ranked_selection]]></Calculation></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_formatted]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_type]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA["Rejected ranked selection: the movie id is not valid in the current FileMaker context."]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="103" name="Exit Script"><Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_ranked_selection" ; JSONString ]
+  ; [ "movie_id" ; $_payload_movie_id ; JSONString ]
+)]]></Calculation></Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="68" name="If"><Restore state="False"/><Calculation><![CDATA[$_ranked_action]]></Calculation></Step>
+  <Step enable="True" id="6" name="Go to Layout"><LayoutDestination value="SelectedLayout"/><Layout id="31" name="WV Framework - Demo"/></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[1]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_nav_index</Name></Step>
+  <Step enable="True" id="16" name="Go to Record/Request/Page"><NoInteract state="False"/><RowPageLocation value="First"/></Step>
+  <Step enable="True" id="71" name="Loop"><Restore state="False"/></Step>
+  <Step enable="True" id="72" name="Exit Loop If"><Calculation><![CDATA[GetAsText ( MOVIE::ID ) = $_payload_movie_id or $_nav_index >= Get ( FoundCount )]]></Calculation></Step>
+  <Step enable="True" id="16" name="Go to Record/Request/Page"><NoInteract state="False"/><Exit state="False"/><RowPageLocation value="Next"/></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[$_nav_index + 1]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_nav_index</Name></Step>
+  <Step enable="True" id="73" name="End Loop"/>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[GetAsText ( MOVIE::ID )]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_demo_movie_id"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) + 1]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_count</Name></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[Case (
+  $_ranked_action ; "Selected native movie " & GetAsText ( MOVIE::ID ) & " | record " & Get ( RecordNumber ) & " of " & Get ( FoundCount ) ;
+  "Handled " & $_type
+)]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_status</Name></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_formatted]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_type]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_count]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_count"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="147" name="Set Field By Name"><Result><Calculation><![CDATA[$_status]]></Calculation></Result><TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName></Step>
+  <Step enable="True" id="1" name="Perform Script"><Calculation><![CDATA[""]]></Calculation><Script id="480" name="WV__Demo_Build_Context"/></Step>
+  <Step enable="True" id="62" name="Pause/Resume Script"><PauseTime value="ForDuration"/><Calculation><![CDATA[.5]]></Calculation></Step>
+  <Step enable="True" id="1" name="Perform Script"><Calculation><![CDATA[""]]></Calculation><Script id="481" name="WV__Demo_Load_Viewer"/></Step>
+  <Step enable="True" id="62" name="Pause/Resume Script"><PauseTime value="ForDuration"/><Calculation><![CDATA[1]]></Calculation></Step>
+  <Step enable="True" id="1" name="Perform Script"><Calculation><![CDATA[""]]></Calculation><Script id="482" name="WV__Demo_Push_Context"/></Step>
+  <Step enable="True" id="141" name="Set Variable"><Value><Calculation><![CDATA[GetAsText ( Get ( ScriptResult ) )]]></Calculation></Value><Repetition><Calculation><![CDATA[1]]></Calculation></Repetition><Name>$_push_result</Name></Step>
+  <Step enable="True" id="103" name="Exit Script"><Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 1 ; JSONBoolean ]
+  ; [ "type" ; $_type ; JSONString ]
+  ; [ "count" ; $_count ; JSONNumber ]
+  ; [ "selected_movie_id" ; Case ( $_ranked_action ; $_payload_movie_id ; "" ) ; JSONString ]
+  ; [ "push_result" ; $_push_result ; JSONString ]
+)]]></Calculation></Step>
+</fmxmlsnippet>

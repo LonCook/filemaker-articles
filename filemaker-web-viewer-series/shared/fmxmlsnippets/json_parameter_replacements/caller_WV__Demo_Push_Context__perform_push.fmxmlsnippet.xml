@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace the existing Perform Script parameter that uses #(). Leave the Build_Context call with empty parameter alone.</Text>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "object_name" ; $_object_name ; JSONString ]
+  ; [ "context_json" ; $_context_json ; JSONString ]
+)]]></Calculation>
+    <Script id="449" name=". webviewer . push context ( -object_name ; -context_json )"/>
+  </Step>
+</fmxmlsnippet>

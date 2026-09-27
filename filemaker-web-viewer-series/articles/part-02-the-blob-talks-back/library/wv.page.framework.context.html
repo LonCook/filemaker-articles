@@ -1,0 +1,52 @@
+<!-- ============================================================
+   W V   P A G E   S H E L L
+   Index: 62
+   Name:  wv.page.framework.context.html
+
+   Purpose:
+     - Two-way context and action demo page shell
+     - Expands LIB[20] base Web Viewer shell
+     - Provides a quiet waiting surface before context is pushed
+     - Loads the action bridge in LIB[25] before the renderer in LIB[63]
+
+   Dependencies:
+     - LIB[20] wv.base.shell.html
+     - LIB[21] wv.platform.base.css
+     - LIB[22] wv.platform.runtime.js
+     - LIB[23] wv.platform.context.js
+     - LIB[24] wv.platform.boot.js
+     - LIB[25] wv.platform.actions.js
+     - LIB[63] wv.renderer.framework.context.js
+
+   Exports:
+     - Page markup for the framework two-way demo
+
+   Public API:
+     - None
+
+   Notes:
+     - FileMaker owns the state.
+     - JavaScript renders the context it is handed.
+     - User intent returns through WV.sendAction.
+     - No reducers, record mutation, or ranked-list behavior lives here.
+   ============================================================ -->
+
+‡‡LIB[20]‡‡
+
+<!-- PAGE_HEAD -->
+<title>WV Framework Two-Way Demo</title>
+
+<!-- PAGE_BODY -->
+<section class="wv-context-page" data-wv-page="framework-context">
+ <div class="wv-context-card">
+  <div class="wv-context-eyebrow">FileMaker context</div>
+  <h1 class="wv-context-title">Waiting for context</h1>
+  <p class="wv-context-note">Load the viewer, then push JSON from FileMaker.</p>
+ </div>
+</section>
+
+<!-- PAGE_SCRIPTS -->
+<script>
+ ‡‡LIB[25]‡‡
+ ‡‡LIB[63]‡‡
+</script>   

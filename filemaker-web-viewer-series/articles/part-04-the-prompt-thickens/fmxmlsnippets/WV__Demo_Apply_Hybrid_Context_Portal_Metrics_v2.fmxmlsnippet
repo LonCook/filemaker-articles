@@ -1,0 +1,393 @@
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Purpose:	Apply Article 4 portal selection/rating-band state and patch the resident hybrid context without rebuilding its SQL payload.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> In:			FOCUS hybrid selection, rating band, action state, and existing page-43 context JSON.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Out:		FOCUS::g_wv_context_json, SOLUTION__all::g_wv_hybrid_movie_ids, $$wv_hybrid_portal_count, and $$wv_hybrid_selected_position; exits with raw context JSON.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Anchor:		SOLUTION__all on WV Framework - Hybrid.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Calls:		WV__Demo_Build_Context only when no valid page-43 context exists.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Notes:		No find, found-set change, current-record navigation, viewer reload, or timer retry occurs on the interaction path.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	18 Aug 2026, 23hr58PT — Lon Cook — lon@portagebay.com : refresh only the named portal metric text objects after publishing merge variables; keep wv_main untouched.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	18 Aug 2026, 23hr43PT — Lon Cook — lon@portagebay.com : publish portal count and selected-row position to private merge variables after every acknowledged interaction.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	17 Aug 2026, 23hr53PT — Lon Cook — lon@portagebay.com : replace found-set and record navigation with one ordered portal match-list update and remove viewer-recovery timer retries.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 23hr06PT — Lon Cook — lon@portagebay.com : add a bounded FileMaker-owned one-shot retry for context pushes lost during range-driven viewer reconstruction.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 20hr43PT — Lon Cook — lon@portagebay.com : use the verified RowList calculation wrapper required by Go to List of Records.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 20hr06PT — Lon Cook — lon@portagebay.com : correct the FileMaker 22+ Go to List of Records FMXML container so its record-ID calculation survives paste.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 19hr24PT — Lon Cook — lon@portagebay.com : apply rating-band found sets with one private ROWID-backed Go to List of Records operation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 18hr12PT — Lon Cook — lon@portagebay.com : repurpose the continuation as the interaction-time native List View/context patch path.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 14hr03PT — Lon Cook — lon@portagebay.com : replace host-idle scheduling with a queued fmp URL acknowledgement callback.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 02hr10PT — Lon Cook — lon@portagebay.com : stabilize initial and re-armed host-idle handoffs at a reliable 0.10-second interval.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 01hr57PT — Lon Cook — lon@portagebay.com : re-arm the continuation when a newer Web Viewer intent arrives during the active acknowledgement pass.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 01hr42PT — Lon Cook — lon@portagebay.com : collapse two timer passes into one and skip redundant selection finds.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 01hr25PT — Lon Cook — lon@portagebay.com : separate native navigation and Web Viewer push into consecutive one-shot passes.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 00hr49PT — Lon Cook — lon@portagebay.com : created</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_action_type" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_type</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_context_json" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>IsEmpty ( $_context_json ) or JSONFormatElements ( $_context_json ) = "?" or
+GetAsNumber ( JSONGetElement ( $_context_json ; "__wv.page" ) ) &lt;&gt; 43 or
+EvaluationError ( JSONGetElementType ( $_context_json ; "ranked_view.rows" ) ) &lt;&gt; 0 or
+JSONGetElementType ( $_context_json ; "ranked_view.rows" ) &lt;&gt; JSONArray or
+GetAsText ( JSONGetElement ( $_context_json ; "ranked_view.filter.genre_id" ) ) &lt;&gt;
+  GetAsText ( GetField ( "FOCUS::g_wv_demo_genre_id" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_invalid</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_context_invalid</Calculation>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="480" name="WV__Demo_Build_Context" />
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If">
+					</Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_rating_lo" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_lo_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_rating_hi" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_hi_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>not IsEmpty ( $_rating_lo_raw ) and not IsEmpty ( $_rating_hi_raw ) and
+GetAsNumber ( $_rating_lo_raw ) &lt;= GetAsNumber ( $_rating_hi_raw )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_band_active</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( $_band_active ; GetAsNumber ( $_rating_lo_raw ) ; "" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_lo</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( $_band_active ; GetAsNumber ( $_rating_hi_raw ) ; "" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_hi</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( $_band_active ; "Ratings " &amp; $_rating_lo &amp; "–" &amp; $_rating_hi ; "All ratings" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_band_label</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONGetElement ( $_context_json ; "ranked_view.rows" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rows_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>ValueCount ( JSONListKeys ( $_rows_json ; "" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_row_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>While (
+  [ i = 0 ; ids = "" ; movie_id = "" ; rating = "" ; include = 0 ] ;
+  i &lt; $_row_count ;
+  [
+    movie_id = GetAsText ( JSONGetElement ( $_rows_json ; "[" &amp; i &amp; "].movie_id" ) ) ;
+    rating = GetAsNumber ( JSONGetElement ( $_rows_json ; "[" &amp; i &amp; "].rating" ) ) ;
+    include = not $_band_active or ( rating &gt;= $_rating_lo and rating &lt;= $_rating_hi ) ;
+    ids = Case ( include and not IsEmpty ( movie_id ) ; List ( ids ; movie_id ) ; ids ) ;
+    i = i + 1
+  ] ;
+  ids
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_portal_movie_ids</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_demo_movie_id" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_selected_movie_id</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>not IsEmpty ( $_selected_movie_id ) and not IsEmpty ( FilterValues ( $_portal_movie_ids ; $_selected_movie_id ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_selected_valid</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( IsEmpty ( $_portal_movie_ids ) ; "" ; $_selected_valid ; $_selected_movie_id ; GetValue ( $_portal_movie_ids ; 1 ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_selected_movie_id</Name>
+  </Step>
+  <Step enable="True" id="76" name="Set Field">
+    <Calculation>$_portal_movie_ids</Calculation>
+    <Field table="SOLUTION__all" id="23" name="g_wv_hybrid_movie_ids" />
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_selected_movie_id</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_demo_movie_id"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>While (
+  [ i = 0 ; json = $_rows_json ] ;
+  i &lt; $_row_count ;
+  [
+    row_id = GetAsText ( JSONGetElement ( json ; "[" &amp; i &amp; "].movie_id" ) ) ;
+    json = JSONSetElement ( json
+      ; [ "[" &amp; i &amp; "].selected" ; row_id = $_selected_movie_id ; JSONBoolean ]
+    ) ;
+    i = i + 1
+  ] ;
+  json
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rows_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( IsEmpty ( $_portal_movie_ids ) ; 0 ; ValueCount ( $_portal_movie_ids ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_portal_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( IsEmpty ( $_selected_movie_id ) ; 0 ;
+While (
+  [ i = 1 ; n = $_portal_count ; found = 0 ] ;
+  i &lt;= n and not found ;
+  [ found = GetAsText ( GetValue ( $_portal_movie_ids ; i ) ) = $_selected_movie_id ; i = i + 1 ] ;
+  Case ( found ; i - 1 ; 0 )
+) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_selected_position</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_portal_count</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$$wv_hybrid_portal_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_selected_position</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$$wv_hybrid_selected_position</Name>
+  </Step>
+  <Step enable="True" id="167" name="Refresh Object">
+    <ObjectName>
+      <Calculation>"metric.portal_count"</Calculation>
+    </ObjectName>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+  </Step>
+  <Step enable="True" id="167" name="Refresh Object">
+    <ObjectName>
+      <Calculation>"metric.selected_row"</Calculation>
+    </ObjectName>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONSetElement ( $_context_json
+  ; [ "__wv.ts" ; GetAsText ( Get ( CurrentHostTimestamp ) ) ; JSONString ]
+  ; [ "ranked_view.rating_band.active" ; $_band_active ; JSONBoolean ]
+  ; [ "ranked_view.rating_band.rating_lo" ; Case ( $_band_active ; $_rating_lo ; "" ) ; Case ( $_band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "ranked_view.rating_band.rating_hi" ; Case ( $_band_active ; $_rating_hi ; "" ) ; Case ( $_band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "ranked_view.rating_band.label" ; $_band_label ; JSONString ]
+  ; [ "ranked_view.selected_movie_id" ; $_selected_movie_id ; JSONString ]
+  ; [ "ranked_view.native_found_count" ; $_portal_count ; JSONNumber ]
+  ; [ "ranked_view.current_record_number" ; $_selected_position ; JSONNumber ]
+  ; [ "ranked_view.current_record_id" ; $_selected_movie_id ; JSONString ]
+  ; [ "ranked_view.rows" ; $_rows_json ; JSONArray ]
+  ; [ "actions.count" ; GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) ; JSONNumber ]
+  ; [ "actions.last_type" ; $_type ; JSONString ]
+  ; [ "actions.status" ; GetAsText ( GetField ( "FOCUS::g_wv_action_status" ) ) ; JSONString ]
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>JSONFormatElements ( $_context_json )</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_context_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Hybrid portal context patched: " &amp; $_portal_count &amp; " rows | " &amp; $_band_label &amp;
+  If ( not IsEmpty ( $_selected_movie_id ) ; " | selected row " &amp; $_selected_position ; " | no portal selection" )</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>""</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$$wv_hybrid_context_retry_count</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>$_context_json</Calculation>
+  </Step>
+</fmxmlsnippet>

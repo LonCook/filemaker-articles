@@ -1,0 +1,24 @@
+{
+  "__wv": {
+    "contract_version": 1,
+    "page": 41,
+    "page_name": "ranked_list",
+    "source": "ranked_views_demo",
+    "ts": "2026-08-01 20:16:00"
+  },
+  "actions": {
+    "count": 3,
+    "last_type": "ranked.select_movie",
+    "status": "Manual empty-state fixture"
+  },
+  "ranked_view": {
+    "filter": {
+      "genre_id": "GENRE-DEMO-NO-MATCHES",
+      "label": "No Matches"
+    },
+    "selected_movie_id": "",
+    "count": 0,
+    "empty_message": "No ranked movies match No Matches.",
+    "rows": []
+  }
+}

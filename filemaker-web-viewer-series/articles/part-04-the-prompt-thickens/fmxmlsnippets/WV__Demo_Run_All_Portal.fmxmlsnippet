@@ -1,0 +1,95 @@
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Purpose:	Build the current demo context, then ensure the builder-selected Web Viewer module is loaded with that context.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> In:			The current demo builder inputs; WV__Demo_Build_Context owns FOCUS::g_wv_module_index.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Out:		FOCUS::g_wv_context_json, FOCUS::g_wv_status; exits with the ensure-loaded result.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Calls:		WV__Demo_Build_Context; . webviewer . ensure loaded ( index ; -object_name ; -context_json ; -movie_id ; -genre_id ; ... )</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	18 Aug 2026, 20hr13PT — Lon Cook — lon@portagebay.com : make the explicit Run command force-load the selected module before pushing context so stale loaded-state cannot leave the viewer blank.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	18 Aug 2026, 00hr24PT — Lon Cook — lon@portagebay.com : remove the inherited hardcoded module-41 loader index and honor the current builder's authoritative module index.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	01 Aug 2026, 20hr18PT — Lon Cook — lon@portagebay.com : route the cumulative ranked-view run through the retained push-first loader.
+			06 Jul 2026, Codex - created Article 1 demo teaching wrapper.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text />
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True" />
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="480" name="WV__Demo_Build_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [ raw = GetField ( "FOCUS::g_wv_module_index" ) ] ;
+  Case ( IsEmpty ( raw ) ; 43 ; GetAsNumber ( raw ) )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_index</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_context_json" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "object_name" ; "wv_main" ; JSONString ]
+  ; [ "context_json" ; $_context_json ; JSONString ]
+  ; [ "force_reload" ; 1 ; JSONNumber ]
+)</Calculation>
+    <Script id="457" name=". webviewer . ensure loaded ( index ; -object_name ; -context_json ; -movie_id ; -genre_id ; ... ) :" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_ensure_result</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>"Run module " &amp; $_index &amp; ": " &amp; JSONGetElement ( $_ensure_result ; "status" ) &amp;
+  " — " &amp; JSONGetElement ( $_ensure_result ; "message" ) &amp;
+  " — did_reload=" &amp; JSONGetElement ( $_ensure_result ; "did_reload" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_status</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_status</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>$_ensure_result</Calculation>
+  </Step>
+</fmxmlsnippet>

@@ -1,0 +1,585 @@
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Purpose:	Build the hybrid rating context, native found set, and acknowledged FileMaker-owned selection/band state.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> In:			FOCUS::g_wv_demo_movie_id, FOCUS::g_wv_demo_genre_id, FOCUS::g_wv_rating_lo, FOCUS::g_wv_rating_hi</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Out:		FOCUS::g_wv_module_index, FOCUS::g_wv_context_json, FOCUS::g_wv_status; exits with raw context JSON.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Anchor:		MOVIE on WV Framework - Hybrid. Native rows come from the MOVIE found set.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Calls:		None. FileMaker establishes the native rating-band found set and shapes the rendering contract.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 20hr06PT — Lon Cook — lon@portagebay.com : correct the FileMaker 22+ Go to List of Records FMXML container so its record-ID calculation survives paste.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 19hr24PT — Lon Cook — lon@portagebay.com : replace multi-request ID finds with one private ROWID-backed Go to List of Records operation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 17hr36PT — Lon Cook — lon@portagebay.com : restore the MOVIE-based native List View and replace record walking with one calculated record navigation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 15hr38PT — Lon Cook — lon@portagebay.com : move hybrid context to a stable SOLUTION__all host and remove every interaction-time find and record-navigation step.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 02hr24PT — Lon Cook — lon@portagebay.com : replace unsupported unrelated-field criteria with one frozen local pass over the verified MOVIE id set.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 02hr18PT — Lon Cook — lon@portagebay.com : preserve related-record find semantics by establishing the genre set before constraining it to the rating band.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 01hr42PT — Lon Cook — lon@portagebay.com : replace per-movie find requests with one related-field find and skip unchanged selection finds.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	15 Aug 2026, 23hr41PT — Lon Cook — lon@portagebay.com : preserve the loaded Web Viewer by avoiding redundant navigation to the current hybrid layout.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	15 Aug 2026, 19hr31PT — Lon Cook — lon@portagebay.com : add the Article 4 hybrid rating context and FileMaker-owned rating-band found set.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	01 Aug 2026, 21hr22PT — Lon Cook — lon@portagebay.com : establish the ranked native found set and bind selection to the current MOVIE record.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	01 Aug 2026, 19hr34PT — Lon Cook — lon@portagebay.com : shape native ranked-view records and FileMaker-owned selected state.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	19 Jul 2026, 20hr24PT — Lon Cook - lon@portagebay.com : added FileMaker-owned action acknowledgement state.</Text>
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>43</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_index</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_index</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_module_index"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_demo_movie_id" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_movie_id</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_demo_genre_id" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_genre_id</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_rating_lo" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_lo_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( GetField ( "FOCUS::g_wv_rating_hi" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_hi_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>not IsEmpty ( $_rating_lo_raw ) and not IsEmpty ( $_rating_hi_raw ) and
+GetAsNumber ( $_rating_lo_raw ) &lt;= GetAsNumber ( $_rating_hi_raw )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_band_active</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( $_band_active ; GetAsNumber ( $_rating_lo_raw ) ; "" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_lo</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( $_band_active ; GetAsNumber ( $_rating_hi_raw ) ; "" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rating_hi</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( $_band_active ; "Ratings " &amp; $_rating_lo &amp; "–" &amp; $_rating_hi ; "All ratings" )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_band_label</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case (
+  IsEmpty ( $_genre_id ) ; "All Genres" ;
+  Let ( [
+    label = ExecuteSQL (
+      "SELECT \"name\" FROM \"GENRE\" WHERE \"ID\" = ?" ;
+      "" ; "" ; $_genre_id
+    )
+  ] ;
+    Case ( Left ( label ; 1 ) = "?" or IsEmpty ( label ) ; $_genre_id ; label )
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_filter_label</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  base =
+    "SELECT m.\"ID\", m.\"title_year_display\", m.\"year\", " &amp;
+    "r.\"global_rating\", r.\"global_rank_order\", m.ROWID " &amp;
+    "FROM \"MOVIE\" m " &amp;
+    "INNER JOIN \"MOVIE_GLOBAL_RATING\" r ON r.\"id_movie\" = m.\"ID\" " ;
+  ordered = "ORDER BY r.\"global_rank_order\" ASC, m.\"title_year_display\" ASC"
+] ;
+  Case (
+    IsEmpty ( $_genre_id ) ;
+      ExecuteSQL ( base &amp; ordered ; Char ( 29 ) ; Char ( 30 ) ) ;
+    ExecuteSQL (
+      base &amp;
+      "INNER JOIN \"MOVIE_GENRE\" mg ON mg.\"id_movie\" = m.\"ID\" " &amp;
+      "WHERE mg.\"id_genre\" = ? " &amp; ordered ;
+      Char ( 29 ) ; Char ( 30 ) ; $_genre_id
+    )
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rows_text</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>Left ( $_rows_text ; 1 ) = "?"</Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONSetElement ( "{}"
+  ; [ "__wv.page" ; $_index ; JSONNumber ]
+  ; [ "__wv.page_name" ; "hybrid_rating" ; JSONString ]
+  ; [ "__wv.source" ; "hybrid_rating_demo" ; JSONString ]
+  ; [ "__wv.contract_version" ; 1 ; JSONNumber ]
+  ; [ "ranked_view.filter.genre_id" ; $_genre_id ; JSONString ]
+  ; [ "ranked_view.filter.label" ; $_filter_label ; JSONString ]
+  ; [ "ranked_view.rating_band.active" ; $_band_active ; JSONBoolean ]
+  ; [ "ranked_view.rating_band.rating_lo" ; Case ( $_band_active ; $_rating_lo ; "" ) ; Case ( $_band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "ranked_view.rating_band.rating_hi" ; Case ( $_band_active ; $_rating_hi ; "" ) ; Case ( $_band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "ranked_view.rating_band.label" ; $_band_label ; JSONString ]
+  ; [ "ranked_view.selected_movie_id" ; "" ; JSONString ]
+  ; [ "ranked_view.count" ; 0 ; JSONNumber ]
+  ; [ "ranked_view.empty_message" ; "The native ranked query failed. Inspect FOCUS::g_wv_status." ; JSONString ]
+  ; [ "ranked_view.rows" ; "[]" ; JSONArray ]
+  ; [ "error" ; $_rows_text ; JSONString ]
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>JSONFormatElements ( $_context_json )</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_context_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Ranked context failed: " &amp; $_rows_text</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>$_context_json</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  row_sep = Char ( 30 ) ;
+  field_sep = Char ( 29 ) ;
+  row_list = Substitute ( $_rows_text ; row_sep ; ¶ ) ;
+  n = Case ( IsEmpty ( $_rows_text ) ; 0 ; ValueCount ( row_list ) )
+] ;
+  While (
+    [
+      i = 1 ; j = 0 ; rows = "[]" ; values = "" ;
+      movie_id = "" ; rating = "" ; record_id = "" ; include = 0
+    ] ;
+    i &lt;= n ;
+    [
+      values = Substitute ( GetValue ( row_list ; i ) ; field_sep ; ¶ ) ;
+      movie_id = GetAsText ( GetValue ( values ; 1 ) ) ;
+      rating = GetAsNumber ( GetValue ( values ; 4 ) ) ;
+      record_id = GetAsText ( GetValue ( values ; 6 ) ) ;
+      include = not IsEmpty ( record_id ) ;
+      rows = Case (
+        include ;
+        JSONSetElement ( rows
+          ; [ "[" &amp; j &amp; "].movie_id" ; movie_id ; JSONString ]
+          ; [ "[" &amp; j &amp; "].rating" ; rating ; JSONNumber ]
+          ; [ "[" &amp; j &amp; "].record_id" ; record_id ; JSONString ]
+        ) ;
+        rows
+      ) ;
+      j = j + include ;
+      i = i + 1
+    ] ;
+    rows
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_private_rows</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONSetElement ( "{}"
+  ; [ "genre_id" ; $_genre_id ; JSONString ]
+  ; [ "rows" ; $_private_rows ; JSONArray ]
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$$wv_hybrid_movie_rowid_map</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  rows = JSONGetElement ( $$wv_hybrid_movie_rowid_map ; "rows" ) ;
+  n = ValueCount ( JSONListKeys ( rows ; "" ) )
+] ;
+  While (
+    [ i = 0 ; ids = "" ; rating = "" ; record_id = "" ; include = 0 ] ;
+    i &lt; n ;
+    [
+      rating = GetAsNumber ( JSONGetElement ( rows ; "[" &amp; i &amp; "].rating" ) ) ;
+      record_id = GetAsText ( JSONGetElement ( rows ; "[" &amp; i &amp; "].record_id" ) ) ;
+      include = not $_band_active or ( rating &gt;= $_rating_lo and rating &lt;= $_rating_hi ) ;
+      ids = Case ( include and not IsEmpty ( record_id ) ; List ( ids ; record_id ) ; ids ) ;
+      i = i + 1
+    ] ;
+    ids
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_record_ids</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( IsEmpty ( $_record_ids ) ; "[]" ; $_record_ids )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_record_ids_for_step</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>Get ( LayoutName ) &lt;&gt; "WV Framework - Hybrid"</Calculation>
+  </Step>
+  <Step enable="True" id="6" name="Go to Layout">
+    <LayoutDestination value="SelectedLayout" />
+    <Layout id="150" name="WV Framework - Hybrid" />
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="79" name="Freeze Window" />
+  <Step enable="True" id="228" name="Go to List of Records">
+    <Parameter>
+      <Calculation>$_record_ids_for_step</Calculation>
+    </Parameter>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Get ( LastError )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_list_error</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  row_sep = Char ( 30 ) ;
+  field_sep = Char ( 29 ) ;
+  row_list = Substitute ( $_rows_text ; row_sep ; ¶ ) ;
+  row_count = Case ( IsEmpty ( $_rows_text ) ; 0 ; ValueCount ( row_list ) )
+] ;
+  While (
+    [
+      i = 0 ; n = row_count ; row = "" ; values = "" ;
+      movie_id = "" ; display_title = "" ; year = "" ;
+      rating = "" ; native_rank = "" ; rank = "" ; json = "[]"
+    ] ;
+    i &lt; n ;
+    [
+      row = GetValue ( row_list ; i + 1 ) ;
+      values = Substitute ( row ; field_sep ; ¶ ) ;
+      movie_id = GetAsText ( GetValue ( values ; 1 ) ) ;
+      display_title = GetAsText ( GetValue ( values ; 2 ) ) ;
+      year = GetAsNumber ( GetValue ( values ; 3 ) ) ;
+      rating = GetAsNumber ( GetValue ( values ; 4 ) ) ;
+      native_rank = GetAsNumber ( GetValue ( values ; 5 ) ) ;
+      rank = Case ( native_rank &gt; 0 ; native_rank ; i + 1 ) ;
+      json = JSONSetElement ( json
+        ; [ "[" &amp; i &amp; "].movie_id" ; movie_id ; JSONString ]
+        ; [ "[" &amp; i &amp; "].display_title" ; Case ( IsEmpty ( display_title ) ; movie_id ; display_title ) ; JSONString ]
+        ; [ "[" &amp; i &amp; "].year" ; year ; JSONNumber ]
+        ; [ "[" &amp; i &amp; "].rating" ; rating ; JSONNumber ]
+        ; [ "[" &amp; i &amp; "].rank" ; rank ; JSONNumber ]
+        ; [ "[" &amp; i &amp; "].order" ; i + 1 ; JSONNumber ]
+      ) ;
+      i = i + 1
+    ] ;
+    json
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rows_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  n = ValueCount ( JSONListKeys ( $_rows_json ; "" ) )
+] ;
+  While (
+    [ i = 0 ; found = 0 ] ;
+    i &lt; n and not found ;
+    [
+      found = GetAsText ( JSONGetElement ( $_rows_json ; "[" &amp; i &amp; "].movie_id" ) ) = $_movie_id ;
+      i = i + 1
+    ] ;
+    found
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_selected_valid</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( Get ( FoundCount ) = 0 ; "" ; $_selected_valid ; $_movie_id ; GetAsText ( MOVIE::ID ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_movie_id</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>not IsEmpty ( $_movie_id ) and Get ( FoundCount ) &gt; 0</Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>While (
+  [ i = 1 ; n = Get ( FoundCount ) ; match = 0 ] ;
+  i &lt;= n and not match ;
+  [
+    match = GetAsText ( GetNthRecord ( MOVIE::ID ; i ) ) = $_movie_id ;
+    i = i + 1
+  ] ;
+  Case ( match ; i - 1 ; 1 )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_target_record</Name>
+  </Step>
+  <Step enable="True" id="16" name="Go to Record/Request/Page">
+    <NoInteract state="True" />
+    <RowPageLocation value="ByCalculation" />
+    <Calculation>$_target_record</Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( MOVIE::ID )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_movie_id</Name>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_movie_id</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_demo_movie_id"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  n = ValueCount ( JSONListKeys ( $_rows_json ; "" ) )
+] ;
+  While (
+    [ i = 0 ; json = $_rows_json ] ;
+    i &lt; n ;
+    [
+      json = JSONSetElement ( json
+        ; "[" &amp; i &amp; "].selected"
+        ; not IsEmpty ( $_movie_id ) and
+          GetAsText ( JSONGetElement ( json ; "[" &amp; i &amp; "].movie_id" ) ) = $_movie_id
+        ; JSONBoolean
+      ) ;
+      i = i + 1
+    ] ;
+    json
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_rows_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>ValueCount ( JSONListKeys ( $_rows_json ; "" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_row_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONSetElement ( "{}"
+  ; [ "__wv.page" ; $_index ; JSONNumber ]
+  ; [ "__wv.page_name" ; "hybrid_rating" ; JSONString ]
+  ; [ "__wv.source" ; "hybrid_rating_demo" ; JSONString ]
+  ; [ "__wv.contract_version" ; 1 ; JSONNumber ]
+  ; [ "__wv.ts" ; GetAsText ( Get ( CurrentHostTimestamp ) ) ; JSONString ]
+  ; [ "ranked_view.filter.genre_id" ; $_genre_id ; JSONString ]
+  ; [ "ranked_view.filter.label" ; $_filter_label ; JSONString ]
+  ; [ "ranked_view.rating_band.active" ; $_band_active ; JSONBoolean ]
+  ; [ "ranked_view.rating_band.rating_lo" ; Case ( $_band_active ; $_rating_lo ; "" ) ; Case ( $_band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "ranked_view.rating_band.rating_hi" ; Case ( $_band_active ; $_rating_hi ; "" ) ; Case ( $_band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "ranked_view.rating_band.label" ; $_band_label ; JSONString ]
+  ; [ "ranked_view.selected_movie_id" ; $_movie_id ; JSONString ]
+  ; [ "ranked_view.count" ; $_row_count ; JSONNumber ]
+  ; [ "ranked_view.native_found_count" ; Get ( FoundCount ) ; JSONNumber ]
+  ; [ "ranked_view.current_record_number" ; Get ( RecordNumber ) ; JSONNumber ]
+  ; [ "ranked_view.current_record_id" ; GetAsText ( MOVIE::ID ) ; JSONString ]
+  ; [ "ranked_view.empty_message" ; Case (
+      IsEmpty ( $_genre_id ) ; "No ranked movies are available." ;
+      "No ranked movies match " &amp; $_filter_label &amp; "."
+    ) ; JSONString ]
+  ; [ "ranked_view.rows" ; $_rows_json ; JSONArray ]
+  ; [ "actions.count" ; GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) ; JSONNumber ]
+  ; [ "actions.last_type" ; GetAsText ( GetField ( "FOCUS::g_wv_action_type" ) ) ; JSONString ]
+  ; [ "actions.status" ; Case (
+      IsEmpty ( GetField ( "FOCUS::g_wv_action_status" ) ) ;
+      "Waiting for a selection" ;
+      GetAsText ( GetField ( "FOCUS::g_wv_action_status" ) )
+    ) ; JSONString ]
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONFormatElements ( $_context_json )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_context_display</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>"Hybrid native list context built: " &amp; $_row_count &amp; " movies | " &amp; $_band_label &amp;
+  If ( not IsEmpty ( $_movie_id ) ; " | native record " &amp; Get ( RecordNumber ) &amp; " of " &amp; Get ( FoundCount ) ; " | no native selection" ) &amp;
+  Case (
+    $_list_error = 0 ; "" ;
+    $_list_error = 401 ; " | empty native found set" ;
+    " | Go to List error " &amp; $_list_error
+  )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_status</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_context_display</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_context_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_status</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>$_context_json</Calculation>
+  </Step>
+</fmxmlsnippet>

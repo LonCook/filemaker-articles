@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace the existing Perform Script parameter that uses #().</Text>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "object_name" ; $_object_name ; JSONString ]
+)]]></Calculation>
+    <Script id="448" name=". webviewer . load ( index ; -object_name )"/>
+  </Step>
+</fmxmlsnippet>

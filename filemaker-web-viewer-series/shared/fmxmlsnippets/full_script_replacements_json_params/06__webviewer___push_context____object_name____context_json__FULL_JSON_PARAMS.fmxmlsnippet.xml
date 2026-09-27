@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>FULL REPLACEMENT for script: . webviewer . push context ( -object_name ; -context_json )</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Select all existing steps in this script, paste this snippet, then smoke test.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Purpose:	Pushes context into an already-loaded WV runtime WITHOUT reloading the Web Viewer.</StepText>
+  					<Text> Purpose:	Pushes context into an already-loaded WV runtime WITHOUT reloading the Web Viewer.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># In:			object_name		(optional; default "wv_main") Web Viewer object name
+  			context_json		(optional; default {} ) JSON object string for WV.setContext( )</StepText>
+  					<Text> In:			object_name		(optional; default "wv_main") Web Viewer object name
+  			context_json		(optional; default {} ) JSON object string for WV.setContext( )</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Out:		text				"ok" | "noWV" | "err"</StepText>
+  					<Text> Out:		text				"ok" | "noWV" | "err"</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Notes:		Uses Perform JavaScript in Web Viewer. JS return values are ignored by FileMaker; use Get ( LastError ) to detect execution.</StepText>
+  					<Text> Notes:		Uses Perform JavaScript in Web Viewer. JS return values are ignored by FileMaker; use Get ( LastError ) to detect execution.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Modified:	26 Jan 2026, 20hr53PT — Lon Cook — lon@@decontrukted.com : determine ok/noWV via Get ( LastError ) (JS return values ignored)
+  			26 Jan 2026, 02hr03PT — Lon Cook — lon@@decontrukted.com : return ok/noWV/err for hybrid loader self-heal
+  			25 Jan 2026, 22hr16PT — Lon Cook — lon@@decontrukted.com : switch push to Perform JavaScript in Web Viewer
+  			23 Jan 2026, 01hr07PT — Lon Cook — lon@deconstrukted.com : created</StepText>
+  					<Text> Modified:	26 Jan 2026, 20hr53PT — Lon Cook — lon@@decontrukted.com : determine ok/noWV via Get ( LastError ) (JS return values ignored)
+  			26 Jan 2026, 02hr03PT — Lon Cook — lon@@decontrukted.com : return ok/noWV/err for hybrid loader self-heal
+  			25 Jan 2026, 22hr16PT — Lon Cook — lon@@decontrukted.com : switch push to Perform JavaScript in Web Viewer
+  			23 Jan 2026, 01hr07PT — Lon Cook — lon@deconstrukted.com : created</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="71" name="Loop">
+  					<StepText>Loop [ Flush: Always ]</StepText>
+  					<Restore state="False" />
+  					<FlushType value="Always" />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</StepText>
+  					<Text> D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let ( [
+    ~p = Get ( ScriptParameter )
+  ; $_object_name = Let ( ~v = GetAsText ( JSONGetElement ( ~p ; "object_name" ) ) ; Case ( IsEmpty ( ~v ) ; "wv_main" ; ~v ) )
+  ; $_context_json = Let ( ~v = JSONGetElement ( ~p ; "context_json" ) ; Case ( IsEmpty ( ~v ) ; "{}" ; GetAsText ( ~v ) ) )
+  ; $_invalid_params = ""
+  ; $_error_message = Case ( not IsEmpty ( $_invalid_params ) ; "Missing/invalid parameter(s): " & Substitute ( $_invalid_params ; ¶ ; ", " ) ; "" )
+] ;
+  Case ( not IsEmpty ( $_invalid_params ) ; 10 ; 0 )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_error</Name>
+  </Step>
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ $_error ]</StepText>
+  					<Calculation>$_error</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_error</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># P U S H   C O N T E X T   (no reload)</StepText>
+  					<Text> P U S H   C O N T E X T   (no reload)</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_ctx; Value:Case ( IsEmpty ( $_context_json ) ; "{}" ; $_context_json ) ]</StepText>
+  					<Value>
+  						<Calculation>Case ( IsEmpty ( $_context_json ) ; "{}" ; $_context_json )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_context_json ) ; "{}" ; $_context_json )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_ctx</Name>
+  				</Step>
+  				
+  <Step enable="True" id="175" name="Perform JavaScript in Web Viewer">
+  					<StepText>Perform JavaScript in Web Viewer [ Object Name: $_object_name; Function Name: "WV_FM_PUSH";
+     Parameter 1:  $_ctx ]</StepText>
+  					<ObjectName>
+  						<Calculation>$_object_name</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_object_name</Chunk>
+  						</DisplayCalculation>
+  					</ObjectName>
+  					<FunctionName>
+  						<Calculation>"WV_FM_PUSH"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"WV_FM_PUSH"</Chunk>
+  						</DisplayCalculation>
+  					</FunctionName>
+  					<Parameters Count="1">
+  						<P>
+  							<Calculation>$_ctx</Calculation>
+  							<DisplayCalculation>
+  								<Chunk type="NoRef">$_ctx</Chunk>
+  							</DisplayCalculation>
+  						</P>
+  					</Parameters>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_js_error; Value:Get ( LastError ) ]</StepText>
+  					<Value>
+  						<Calculation>Get ( LastError )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">LastError</Chunk>
+  							<Chunk type="NoRef"> )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_js_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:Case (
+            $_js_error = 0 ; "ok"
+          ; "noWV"
+        ) ]</StepText>
+  					<Value>
+  						<Calculation>Case (
+            $_js_error = 0 ; "ok"
+          ; "noWV"
+        )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+            $_js_error = 0 ; "ok"
+          ; "noWV"
+        )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True // End single-pass loop ]</StepText>
+  					<Calculation>True // End single-pass loop</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  						<Chunk type="NoRef"> </Chunk>
+  						<Chunk type="FunctionRef">// End single-pass loop</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="73" name="End Loop">
+  					<StepText>End Loop</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># C L E A N U P</StepText>
+  					<Text> C L E A N U P</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="103" name="Exit Script">
+  					<StepText>Exit Script [ Result: $_result ]</StepText>
+  					<Calculation>$_result</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_result</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  			
+</fmxmlsnippet>

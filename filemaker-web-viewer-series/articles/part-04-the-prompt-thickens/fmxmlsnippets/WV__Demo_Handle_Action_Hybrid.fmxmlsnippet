@@ -1,0 +1,907 @@
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Purpose:	Receive and validate inherited or hybrid action envelopes, apply FileMaker-owned state, and push acknowledgement context.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> In:			Get ( ScriptParameter ) as raw JSON.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Out:		JSON status object.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Anchor:		MOVIE on WV Framework - Hybrid. Demo teaching glue; does not update production records.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Calls:		WV__Demo_Apply_Hybrid_Context, WV__Demo_Build_Context, WV__Demo_Push_Context.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 23hr06PT — Lon Cook — lon@portagebay.com : schedule FileMaker-owned post-transition context recovery after every rating-band change.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 22hr15PT — Lon Cook — lon@portagebay.com : remove the recent dot-path Freeze Window regression before native record navigation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 18hr12PT — Lon Cook — lon@portagebay.com : remove interaction-time context rebuilds, settle through the Article 4 patch script, and freeze the one native navigation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 17hr36PT — Lon Cook — lon@portagebay.com : restore stable-id selection to the MOVIE-based native List View with one calculated record navigation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 17hr31PT — Lon Cook — lon@portagebay.com : accept every selectable movie exposed by the authoritative context, including dimmed points outside the active rating band.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 17hr05PT — Lon Cook — lon@portagebay.com : synchronize Web Viewer selections to the exact stable-ID row in the resident native portal.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 16hr39PT — Lon Cook — lon@portagebay.com : push authoritative acknowledgement context on every rejected hybrid intent before exiting.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 16hr18PT — Lon Cook — lon@portagebay.com : treat receipt of authoritative pushed context as the bridge acknowledgement and remove the redundant second JavaScript call.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 15hr38PT — Lon Cook — lon@portagebay.com : settle hybrid actions entirely through globals on a stable host, rebuild context without finds, and acknowledge one coalesced bridge request at a time.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 15hr02PT — Lon Cook — lon@portagebay.com : locate the selected native record with GetNthRecord and navigate once so selection does not blank the resident viewer record by record.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 14hr58PT — Lon Cook — lon@portagebay.com : preserve the acknowledged movie across rating-band finds when it remains in the resulting native found set.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 14hr40PT — Lon Cook — lon@portagebay.com : push acknowledgement directly after the deferred WV.sendAction bridge releases the browser event stack.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 14hr25PT — Lon Cook — lon@portagebay.com : settle native state with exact-id finds and patch the resident context without rebuilding the chart payload.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 14hr03PT — Lon Cook — lon@portagebay.com : queue acknowledgement through an fmp URL callback after authoritative native state and context are built.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 13hr44PT — Lon Cook — lon@portagebay.com : remove the starved OnTimer handoff and build and push hybrid acknowledgement in the action script.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 02hr10PT — Lon Cook — lon@portagebay.com : stabilize the host-idle handoff with a reliable 0.10-second continuation interval.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 01hr42PT — Lon Cook — lon@portagebay.com : avoid irrelevant JSON scans and queue one low-latency hybrid continuation.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	16 Aug 2026, 01hr12PT — Lon Cook — lon@portagebay.com : defer hybrid navigation and acknowledgement until the Web Viewer-originated script returns.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	15 Aug 2026, 23hr32PT — Lon Cook — lon@portagebay.com : push fresh acknowledgement context into the loaded Web Viewer without reloading it.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	15 Aug 2026, 19hr31PT — Lon Cook — lon@portagebay.com : validate hybrid selection and rating-band intent, apply native state, and return acknowledgement context.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	01 Aug 2026, 22hr42PT — Lon Cook — lon@portagebay.com : reload the ranked module after native record navigation before pushing acknowledgement context.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	01 Aug 2026, 21hr22PT — Lon Cook — lon@portagebay.com : navigate the ranked native found set to the requested MOVIE record before acknowledgement.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	01 Aug 2026, 19hr34PT — Lon Cook — lon@portagebay.com : validate ranked stable-id intent and acknowledge FileMaker-owned selection.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	19 Jul 2026, 20hr24PT — Lon Cook - lon@portagebay.com : created</Text>
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptParameter ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>JSONFormatElements ( $_raw )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_formatted</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>EvaluationError ( JSONFormatElements ( $_raw ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_json_error</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>EvaluationError ( JSONGetElementType ( $_raw ; "" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_root_error</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>IsEmpty ( $_raw ) or $_formatted = "?" or
+$_json_error &lt;&gt; 0 or $_root_error &lt;&gt; 0 or
+JSONGetElementType ( $_raw ; "" ) &lt;&gt; JSONObject</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_raw</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>""</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Rejected action: invalid JSON envelope."</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_json" ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( JSONGetElement ( $_raw ; "type" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_type</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsNumber ( JSONGetElement ( $_raw ; "__wv_action.version" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_version</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( JSONGetElement ( $_raw ; "__wv_action.source" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_source</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsNumber ( JSONGetElement ( $_raw ; "__wv_action.page" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_page</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( JSONGetElement ( $_raw ; "payload.movie_id" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_payload_movie_id</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsNumber ( JSONGetElement ( $_raw ; "payload.rating_lo" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_payload_rating_lo</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsNumber ( JSONGetElement ( $_raw ; "payload.rating_hi" ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_payload_rating_hi</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  type_error = EvaluationError ( JSONGetElement ( $_raw ; "type" ) ) ;
+  payload_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload" ) ) ;
+  meta_error = EvaluationError ( JSONGetElementType ( $_raw ; "__wv_action" ) ) ;
+  version_error = EvaluationError ( JSONGetElement ( $_raw ; "__wv_action.version" ) ) ;
+  source_error = EvaluationError ( JSONGetElement ( $_raw ; "__wv_action.source" ) )
+] ;
+  type_error &lt;&gt; 0 or payload_error &lt;&gt; 0 or meta_error &lt;&gt; 0 or
+  version_error &lt;&gt; 0 or source_error &lt;&gt; 0 or
+  IsEmpty ( $_type ) or IsEmpty ( $_source ) or $_version &lt;&gt; 1 or
+  JSONGetElementType ( $_raw ; "type" ) &lt;&gt; JSONString or
+  JSONGetElementType ( $_raw ; "payload" ) &lt;&gt; JSONObject or
+  JSONGetElementType ( $_raw ; "__wv_action" ) &lt;&gt; JSONObject or
+  JSONGetElementType ( $_raw ; "__wv_action.version" ) &lt;&gt; JSONNumber or
+  JSONGetElementType ( $_raw ; "__wv_action.source" ) &lt;&gt; JSONString
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_invalid_envelope</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_invalid_envelope</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_formatted</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>""</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Rejected action: envelope shape is not valid."</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_envelope" ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_type = "demo.inspect_context" or
+$_type = "demo.mark_movie" or
+$_type = "ranked.select_movie" or
+$_type = "hybrid.select_movie" or
+$_type = "hybrid.set_rating_band" or
+$_type = "hybrid.clear_rating_band"</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_known_action</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>not $_known_action</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_formatted</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_type</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Rejected action: unknown type " &amp; $_type</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "unknown_action" ; JSONString ]
+  ; [ "type" ; $_type ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_type = "ranked.select_movie"</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_ranked_action</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_type = "hybrid.select_movie"</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_hybrid_select_action</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_type = "hybrid.set_rating_band"</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_hybrid_set_band_action</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_type = "hybrid.clear_rating_band"</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_hybrid_clear_band_action</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_hybrid_select_action or $_hybrid_set_band_action or $_hybrid_clear_band_action</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_hybrid_action</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [
+  payload_type_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload.movie_id" ) ) ;
+  context_json = GetAsText ( GetField ( "FOCUS::g_wv_context_json" ) ) ;
+  rows_error = EvaluationError ( JSONGetElementType ( context_json ; "ranked_view.rows" ) ) ;
+  row_count = Case ( rows_error ; 0 ; ValueCount ( JSONListKeys ( context_json ; "ranked_view.rows" ) ) ) ;
+  found = While (
+    [ i = 0 ; match = 0 ] ;
+    i &lt; row_count and not match ;
+    [
+      match = GetAsText ( JSONGetElement ( context_json ; "ranked_view.rows[" &amp; i &amp; "].movie_id" ) ) = $_payload_movie_id ;
+      i = i + 1
+    ] ;
+    match
+  )
+] ;
+  $_ranked_action and (
+    $_page &lt;&gt; 41 or
+    $_source &lt;&gt; "wv.renderer.ranked.list" or
+    payload_type_error &lt;&gt; 0 or
+    JSONGetElementType ( $_raw ; "payload.movie_id" ) &lt;&gt; JSONString or
+    IsEmpty ( $_payload_movie_id ) or
+    rows_error &lt;&gt; 0 or
+    not found
+  )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_invalid_ranked_selection</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_invalid_ranked_selection</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_formatted</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_type</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Rejected ranked selection: the movie id is not valid in the current FileMaker context."</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_ranked_selection" ; JSONString ]
+  ; [ "movie_id" ; $_payload_movie_id ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( not $_hybrid_select_action ; 0 ;
+While (
+  [ i = 1 ; n = Get ( FoundCount ) ; match = 0 ] ;
+  i &lt;= n and not match ;
+  [
+    match = GetAsText ( GetNthRecord ( MOVIE::ID ; i ) ) = $_payload_movie_id ;
+    i = i + 1
+  ] ;
+  Case ( match ; i - 1 ; 0 )
+)
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_target_record</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( not $_hybrid_select_action ; False ;
+Let ( [
+  payload_type_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload.movie_id" ) ) ;
+  found = $_target_record &gt; 0
+] ;
+  $_hybrid_select_action and (
+    $_page &lt;&gt; 43 or
+    $_source &lt;&gt; "wv.renderer.hybrid.rating" or
+    payload_type_error &lt;&gt; 0 or
+    JSONGetElementType ( $_raw ; "payload.movie_id" ) &lt;&gt; JSONString or
+    IsEmpty ( $_payload_movie_id ) or
+    not found
+  )
+)
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_invalid_hybrid_selection</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_invalid_hybrid_selection</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_formatted</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_type</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Rejected hybrid selection: the movie id is not available in the current FileMaker found set."</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_hybrid_selection" ; JSONString ]
+  ; [ "movie_id" ; $_payload_movie_id ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case ( not ( $_hybrid_set_band_action or $_hybrid_clear_band_action ) ; False ;
+Let ( [
+  lo_type_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload.rating_lo" ) ) ;
+  hi_type_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload.rating_hi" ) ) ;
+  payload_key_count = ValueCount ( JSONListKeys ( $_raw ; "payload" ) )
+] ;
+  ( $_hybrid_set_band_action or $_hybrid_clear_band_action ) and (
+    $_page &lt;&gt; 43 or
+    $_source &lt;&gt; "wv.renderer.hybrid.rating" or
+    ( $_hybrid_set_band_action and (
+      lo_type_error &lt;&gt; 0 or hi_type_error &lt;&gt; 0 or
+      JSONGetElementType ( $_raw ; "payload.rating_lo" ) &lt;&gt; JSONNumber or
+      JSONGetElementType ( $_raw ; "payload.rating_hi" ) &lt;&gt; JSONNumber or
+      $_payload_rating_lo &gt; $_payload_rating_hi
+    ) ) or
+    ( $_hybrid_clear_band_action and payload_key_count &lt;&gt; 0 )
+  )
+)
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_invalid_hybrid_band</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_invalid_hybrid_band</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_formatted</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_type</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"Rejected hybrid rating band: the bounds or payload shape are not valid."</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_hybrid_band" ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_ranked_action</Calculation>
+  </Step>
+  <Step enable="True" id="6" name="Go to Layout">
+    <LayoutDestination value="SelectedLayout" />
+    <Layout id="31" name="WV Framework - Demo" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>1</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_nav_index</Name>
+  </Step>
+  <Step enable="True" id="16" name="Go to Record/Request/Page">
+    <NoInteract state="False" />
+    <RowPageLocation value="First" />
+  </Step>
+  <Step enable="True" id="71" name="Loop">
+    <FlushType value="Always" />
+  </Step>
+  <Step enable="True" id="72" name="Exit Loop If">
+    <Calculation>GetAsText ( MOVIE::ID ) = $_payload_movie_id or $_nav_index &gt;= Get ( FoundCount )</Calculation>
+  </Step>
+  <Step enable="True" id="16" name="Go to Record/Request/Page">
+    <NoInteract state="False" />
+    <Exit state="False" />
+    <RowPageLocation value="Next" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>$_nav_index + 1</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_nav_index</Name>
+  </Step>
+  <Step enable="True" id="73" name="End Loop" />
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>GetAsText ( MOVIE::ID )</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_demo_movie_id"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_hybrid_select_action</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_payload_movie_id</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_demo_movie_id"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="16" name="Go to Record/Request/Page">
+    <NoInteract state="True" />
+    <RowPageLocation value="ByCalculation" />
+    <Calculation>$_target_record</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_hybrid_set_band_action</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_payload_rating_lo</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_rating_lo"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_payload_rating_hi</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_rating_hi"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="69" name="Else">
+    <Restore state="False" />
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_hybrid_clear_band_action</Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>""</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_rating_lo"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>""</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_rating_hi"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) + 1</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Case (
+  $_ranked_action ; "Selected native movie " &amp; GetAsText ( MOVIE::ID ) ;
+  $_hybrid_select_action ; "Selected hybrid movie " &amp; $_payload_movie_id &amp; " in native list" ;
+  $_hybrid_set_band_action ; "Applied native rating band " &amp; $_payload_rating_lo &amp; "–" &amp; $_payload_rating_hi ;
+  $_hybrid_clear_band_action ; "Cleared native rating band" ;
+  "Handled " &amp; $_type
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_status</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_formatted</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_type</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_count</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_count"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_status</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_hybrid_action</Calculation>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="502" name="WV__Demo_Apply_Hybrid_Context" />
+  </Step>
+  <Step enable="True" id="69" name="Else">
+    <Restore state="False" />
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="480" name="WV__Demo_Build_Context" />
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>$_hybrid_set_band_action or $_hybrid_clear_band_action</Calculation>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>0</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$$wv_hybrid_context_retry_count</Name>
+  </Step>
+  <Step enable="True" id="148" name="Install OnTimer Script">
+    <Interval>
+      <Calculation>1</Calculation>
+    </Interval>
+    <Calculation>"context_retry"</Calculation>
+    <Script id="502" name="WV__Demo_Apply_Hybrid_Context" />
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>Let ( [
+  band_lo = GetAsText ( GetField ( "FOCUS::g_wv_rating_lo" ) ) ;
+  band_hi = GetAsText ( GetField ( "FOCUS::g_wv_rating_hi" ) ) ;
+  band_active = not IsEmpty ( band_lo ) and not IsEmpty ( band_hi )
+] ;
+JSONSetElement ( "{}"
+  ; [ "ok" ; 1 ; JSONBoolean ]
+  ; [ "type" ; $_type ; JSONString ]
+  ; [ "count" ; $_count ; JSONNumber ]
+  ; [ "selected_movie_id" ; GetAsText ( GetField ( "FOCUS::g_wv_demo_movie_id" ) ) ; JSONString ]
+  ; [ "rating_band.active" ; band_active ; JSONBoolean ]
+  ; [ "rating_band.rating_lo" ; Case ( band_active ; GetAsNumber ( band_lo ) ; "" ) ; Case ( band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "rating_band.rating_hi" ; Case ( band_active ; GetAsNumber ( band_hi ) ; "" ) ; Case ( band_active ; JSONNumber ; JSONNull ) ]
+  ; [ "push_result" ; $_push_result ; JSONString ]
+ )
+)</Calculation>
+  </Step>
+</fmxmlsnippet>

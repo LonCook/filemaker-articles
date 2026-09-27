@@ -1,0 +1,1406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>FULL REPLACEMENT for script: . webviewer . render ( index ) : text</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Select all existing steps in this script, paste this snippet, then smoke test.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Purpose:	Renders a LIBRARY_CODE entry (by index) into a data:text/html URL for Web Viewer.</StepText>
+  					<Text> Purpose:	Renders a LIBRARY_CODE entry (by index) into a data:text/html URL for Web Viewer.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># In:			index			(required) LIBRARY_CODE::index of entry payload (typically 40+ / 60+)
+  			context_json		(optional; default {} ) JSON object string for window.__WV_CONTEXT__
+  </StepText>
+  					<Text> In:			index			(required) LIBRARY_CODE::index of entry payload (typically 40+ / 60+)
+  			context_json		(optional; default {} ) JSON object string for window.__WV_CONTEXT__
+  </Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Out:		text				data:text/html,&lt;urlencoded html&gt;</StepText>
+  					<Text> Out:		text				data:text/html,&lt;urlencoded html&gt;</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Notes:		Uses SOLUTION::library_code_json only. Expands ‡‡LIB[n]‡‡ tokens. 
+  			Merges entry slots into base template (index 20). 
+  			Injects window.__WV_CONTEXT__ via &lt;!-- WV_CONTEXT --&gt; marker (preferred) else after &lt;body&gt;.
+  </StepText>
+  					<Text> Notes:		Uses SOLUTION::library_code_json only. Expands ‡‡LIB[n]‡‡ tokens. 
+  			Merges entry slots into base template (index 20). 
+  			Injects window.__WV_CONTEXT__ via &lt;!-- WV_CONTEXT --&gt; marker (preferred) else after &lt;body&gt;.
+  </Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Modified:	22 Jan 2026, 01hr23PT — Lon Cook — lon@deconstrukted.com : ensuring LIBRARY_CODE cache is current
+  			21 Jan 2026, 23hr23PT — Lon Cook — lon@deconstrukted.com : created</StepText>
+  					<Text> Modified:	22 Jan 2026, 01hr23PT — Lon Cook — lon@deconstrukted.com : ensuring LIBRARY_CODE cache is current
+  			21 Jan 2026, 23hr23PT — Lon Cook — lon@deconstrukted.com : created</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="86" name="Set Error Capture">
+  					<StepText>Set Error Capture [ On ]</StepText>
+  					<Set state="True" />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="71" name="Loop">
+  					<StepText>Loop [ Flush: Always ]</StepText>
+  					<Restore state="False" />
+  					<FlushType value="Always" />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</StepText>
+  					<Text> D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Instantiates:
+  	$_error_message
+  	$_invalid_params
+  	$_index</StepText>
+  					<Text> Instantiates:
+  	$_error_message
+  	$_invalid_params
+  	$_index</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let ( [
+    ~p = Get ( ScriptParameter )
+  ; ~index_error = EvaluationError ( JSONGetElement ( ~p ; "index" ) )
+  ; ~index_raw = Case ( ~index_error ; "" ; JSONGetElement ( ~p ; "index" ) )
+  ; $_index = Case ( IsEmpty ( ~index_raw ) ; "" ; GetAsNumber ( ~index_raw ) )
+  ; ~index_invalid = ~index_error or IsEmpty ( ~index_raw ) or $_index ≤ 0
+  ; $_invalid_params = Case ( ~index_invalid ; "index" ; "" )
+  ; $_error_message = Case (
+      not IsEmpty ( $_invalid_params ) ;
+      "Missing/invalid parameter(s): " & Substitute ( $_invalid_params ; ¶ ; ", " ) ;
+      ""
+    )
+] ;
+  Case ( not IsEmpty ( $_invalid_params ) ; 10 ; 0 )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_error</Name>
+  </Step>
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ $_error ]</StepText>
+  					<Calculation>$_error</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_error</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># E N S U R E   L I B R A R Y _ C O D E   C A C H E   I S   C U R R E N T</StepText>
+  					<Text> E N S U R E   L I B R A R Y _ C O D E   C A C H E   I S   C U R R E N T</Text>
+  				</Step>
+  				
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "force_rebuild" ; 0 ; JSONNumber ]
+)]]></Calculation>
+    <Script id="436" name="library_json . ensure cache ( -force_rebuild ) : json"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_cache_json; Value:Get ( ScriptResult ) ]</StepText>
+  					<Value>
+  						<Calculation>Get ( ScriptResult )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">ScriptResult</Chunk>
+  							<Chunk type="NoRef"> )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_cache_json</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ IsEmpty ( $_cache_json ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>IsEmpty ( $_cache_json )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_cache_json )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"LIBRARY_CODE cache unavailable (ensure cache returned empty)" ]</StepText>
+  					<Value>
+  						<Calculation>"LIBRARY_CODE cache unavailable (ensure cache returned empty)"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"LIBRARY_CODE cache unavailable (ensure cache returned empty)"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># L O A D   B A S E   T E M P L A T E   A N D   E N T R Y   P A Y L O A D 
+   (index 20)</StepText>
+  					<Text> L O A D   B A S E   T E M P L A T E   A N D   E N T R Y   P A Y L O A D 
+   (index 20)</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_baseRaw; Value:GetAsText (
+  	JSONGetElement ( SOLUTION__all::library_code_json ; "byIndex.20.code" )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText (
+  	JSONGetElement ( SOLUTION__all::library_code_json ; "byIndex.20.code" )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> (
+  	</Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FieldRef">
+  								<Field table="SOLUTION__all" id="19" name="library_code_json" />
+  							</Chunk>
+  							<Chunk type="NoRef"> ; "byIndex.20.code" )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_baseRaw</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ IsEmpty ( $_baseRaw ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>IsEmpty ( $_baseRaw )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_baseRaw )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"Missing base template: byIndex.20.code (wv.platform.base.html)" ]</StepText>
+  					<Value>
+  						<Calculation>"Missing base template: byIndex.20.code (wv.platform.base.html)"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"Missing base template: byIndex.20.code (wv.platform.base.html)"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_entryRaw; Value:GetAsText (
+  	JSONGetElement ( SOLUTION__all::library_code_json ; "byIndex." &amp; $_index &amp; ".code" )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText (
+  	JSONGetElement ( SOLUTION__all::library_code_json ; "byIndex." &amp; $_index &amp; ".code" )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> (
+  	</Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FieldRef">
+  								<Field table="SOLUTION__all" id="19" name="library_code_json" />
+  							</Chunk>
+  							<Chunk type="NoRef"> ; "byIndex." &amp; $_index &amp; ".code" )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_entryRaw</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ IsEmpty ( $_entryRaw ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>IsEmpty ( $_entryRaw )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_entryRaw )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"Missing entry payload: byIndex." &amp; $_index &amp; ".code" ]</StepText>
+  					<Value>
+  						<Calculation>"Missing entry payload: byIndex." &amp; $_index &amp; ".code"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"Missing entry payload: byIndex." &amp; $_index &amp; ".code"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># E X T R A C T   S L O T S   F R O M   E N T R Y   P A Y L O A D</StepText>
+  					<Text> E X T R A C T   S L O T S   F R O M   E N T R Y   P A Y L O A D</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_slotHead; Value:Let ( [
+  
+  	  ~s		= $_entryRaw
+  	; ~a		= "&lt;!-- PAGE_HEAD --&gt;"
+  	; ~b		= "&lt;!-- PAGE_BODY --&gt;"
+  	; ~p1	= Position ( ~s ; ~a ; 1 ; 1 )
+  	; ~p2	= Position ( ~s ; ~b ; 1 ; 1 )
+  
+  	];
+  
+  	Case (
+  	 	 ~p1 and ~p2 and ~p2 &gt; ~p1
+  		; Middle ( ~s ; ~p1 + Length ( ~a ) ; ~p2 - ( ~p1 + Length ( ~a ) ) )
+  
+  		; ""
+  	)
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ( [
+  
+  	  ~s		= $_entryRaw
+  	; ~a		= "&lt;!-- PAGE_HEAD --&gt;"
+  	; ~b		= "&lt;!-- PAGE_BODY --&gt;"
+  	; ~p1	= Position ( ~s ; ~a ; 1 ; 1 )
+  	; ~p2	= Position ( ~s ; ~b ; 1 ; 1 )
+  
+  	];
+  
+  	Case (
+  	 	 ~p1 and ~p2 and ~p2 &gt; ~p1
+  		; Middle ( ~s ; ~p1 + Length ( ~a ) ; ~p2 - ( ~p1 + Length ( ~a ) ) )
+  
+  		; ""
+  	)
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ( [
+  
+  	  ~s		= $_entryRaw
+  	; ~a		= "&lt;!-- PAGE_HEAD --&gt;"
+  	; ~b		= "&lt;!-- PAGE_BODY --&gt;"
+  	; ~p1	= </Chunk>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~a ; 1 ; 1 )
+  	; ~p2	= </Chunk>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~b ; 1 ; 1 )
+  
+  	];
+  
+  	</Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+  	 	 ~p1 </Chunk>
+  							<Chunk type="FunctionRef">and</Chunk>
+  							<Chunk type="NoRef"> ~p2 </Chunk>
+  							<Chunk type="FunctionRef">and</Chunk>
+  							<Chunk type="NoRef"> ~p2 &gt; ~p1
+  		; </Chunk>
+  							<Chunk type="FunctionRef">Middle</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~p1 + </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( ~a ) ; ~p2 - ( ~p1 + </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( ~a ) ) )
+  
+  		; ""
+  	)
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_slotHead</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_slotBody; Value:Let ( [
+  
+  	  ~s		= $_entryRaw
+  	; ~a		= "&lt;!-- PAGE_BODY --&gt;"
+  	; ~b		= "&lt;!-- PAGE_SCRIPTS --&gt;"
+  	; ~p1	= Position ( ~s ; ~a ; 1 ; 1 )
+  	; ~p2	= Position ( ~s ; ~b ; 1 ; 1 )
+  
+  	];
+  
+  	Case (
+  
+  		  ~p1 and ~p2 and ~p2 &gt; ~p1
+  		; Middle ( ~s ; ~p1 + Length ( ~a ) ; ~p2 - ( ~p1 + Length ( ~a ) ) )
+  
+  		; ""
+  
+  	)
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ( [
+  
+  	  ~s		= $_entryRaw
+  	; ~a		= "&lt;!-- PAGE_BODY --&gt;"
+  	; ~b		= "&lt;!-- PAGE_SCRIPTS --&gt;"
+  	; ~p1	= Position ( ~s ; ~a ; 1 ; 1 )
+  	; ~p2	= Position ( ~s ; ~b ; 1 ; 1 )
+  
+  	];
+  
+  	Case (
+  
+  		  ~p1 and ~p2 and ~p2 &gt; ~p1
+  		; Middle ( ~s ; ~p1 + Length ( ~a ) ; ~p2 - ( ~p1 + Length ( ~a ) ) )
+  
+  		; ""
+  
+  	)
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ( [
+  
+  	  ~s		= $_entryRaw
+  	; ~a		= "&lt;!-- PAGE_BODY --&gt;"
+  	; ~b		= "&lt;!-- PAGE_SCRIPTS --&gt;"
+  	; ~p1	= </Chunk>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~a ; 1 ; 1 )
+  	; ~p2	= </Chunk>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~b ; 1 ; 1 )
+  
+  	];
+  
+  	</Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+  
+  		  ~p1 </Chunk>
+  							<Chunk type="FunctionRef">and</Chunk>
+  							<Chunk type="NoRef"> ~p2 </Chunk>
+  							<Chunk type="FunctionRef">and</Chunk>
+  							<Chunk type="NoRef"> ~p2 &gt; ~p1
+  		; </Chunk>
+  							<Chunk type="FunctionRef">Middle</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~p1 + </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( ~a ) ; ~p2 - ( ~p1 + </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( ~a ) ) )
+  
+  		; ""
+  
+  	)
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_slotBody</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_slotScripts; Value:Let ( [
+  
+  	  ~s	= $_entryRaw
+  	; ~a	= "&lt;!-- PAGE_SCRIPTS --&gt;"
+  	; ~p1	= Position ( ~s ; ~a ; 1 ; 1 )
+  
+  	] ;
+  
+  	Case (
+  
+  		  ~p1
+  		; Middle ( ~s ; ~p1 + Length ( ~a ) ; Length ( ~s ) )
+  
+  		; ""
+  	)
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ( [
+  
+  	  ~s	= $_entryRaw
+  	; ~a	= "&lt;!-- PAGE_SCRIPTS --&gt;"
+  	; ~p1	= Position ( ~s ; ~a ; 1 ; 1 )
+  
+  	] ;
+  
+  	Case (
+  
+  		  ~p1
+  		; Middle ( ~s ; ~p1 + Length ( ~a ) ; Length ( ~s ) )
+  
+  		; ""
+  	)
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ( [
+  
+  	  ~s	= $_entryRaw
+  	; ~a	= "&lt;!-- PAGE_SCRIPTS --&gt;"
+  	; ~p1	= </Chunk>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~a ; 1 ; 1 )
+  
+  	] ;
+  
+  	</Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+  
+  		  ~p1
+  		; </Chunk>
+  							<Chunk type="FunctionRef">Middle</Chunk>
+  							<Chunk type="NoRef"> ( ~s ; ~p1 + </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( ~a ) ; </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( ~s ) )
+  
+  		; ""
+  	)
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_slotScripts</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Merge slots into base template</StepText>
+  					<Text> Merge slots into base template</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_html; Value:Substitute ( $_baseRaw
+  
+  	; [ "&lt;!-- PAGE_HEAD --&gt;"		; $_slotHead ]
+  	; [ "&lt;!-- PAGE_BODY --&gt;"		; $_slotBody ]
+  	; [ "&lt;!-- PAGE_SCRIPTS --&gt;"	; $_slotScripts ]
+  
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Substitute ( $_baseRaw
+  
+  	; [ "&lt;!-- PAGE_HEAD --&gt;"		; $_slotHead ]
+  	; [ "&lt;!-- PAGE_BODY --&gt;"		; $_slotBody ]
+  	; [ "&lt;!-- PAGE_SCRIPTS --&gt;"	; $_slotScripts ]
+  
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Substitute</Chunk>
+  							<Chunk type="NoRef"> ( $_baseRaw
+  
+  	; [ "&lt;!-- PAGE_HEAD --&gt;"		; $_slotHead ]
+  	; [ "&lt;!-- PAGE_BODY --&gt;"		; $_slotBody ]
+  	; [ "&lt;!-- PAGE_SCRIPTS --&gt;"	; $_slotScripts ]
+  
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_html</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Inject window.__WV_CONTEXT__</StepText>
+  					<Text> Inject window.__WV_CONTEXT__</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_contextBlock; Value:Let ( [
+  
+  	~ctx	= Case ( IsEmpty ( $_context_json ) ; "{}" ; $_context_json )
+  
+  ] ;
+  
+  "&lt;script&gt;" &amp; ¶ &amp;
+  "window.__WV_CONTEXT__ = " &amp; ~ctx &amp; ";" &amp; ¶ &amp;
+  "&lt;/script&gt;"
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ( [
+  
+  	~ctx	= Case ( IsEmpty ( $_context_json ) ; "{}" ; $_context_json )
+  
+  ] ;
+  
+  "&lt;script&gt;" &amp; ¶ &amp;
+  "window.__WV_CONTEXT__ = " &amp; ~ctx &amp; ";" &amp; ¶ &amp;
+  "&lt;/script&gt;"
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ( [
+  
+  	~ctx	= </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_context_json ) ; "{}" ; $_context_json )
+  
+  ] ;
+  
+  "&lt;script&gt;" &amp; ¶ &amp;
+  "window.__WV_CONTEXT__ = " &amp; ~ctx &amp; ";" &amp; ¶ &amp;
+  "&lt;/script&gt;"
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_contextBlock</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ PatternCount ( $_html ; "&lt;!-- WV_CONTEXT --&gt;" ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>PatternCount ( $_html ; "&lt;!-- WV_CONTEXT --&gt;" )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">PatternCount</Chunk>
+  						<Chunk type="NoRef"> ( $_html ; "&lt;!-- WV_CONTEXT --&gt;" )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_html; Value:Substitute ( $_html ; "&lt;!-- WV_CONTEXT --&gt;" ; $_contextBlock ) ]</StepText>
+  					<Value>
+  						<Calculation>Substitute ( $_html ; "&lt;!-- WV_CONTEXT --&gt;" ; $_contextBlock )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Substitute</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; "&lt;!-- WV_CONTEXT --&gt;" ; $_contextBlock )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_html</Name>
+  				</Step>
+  				
+  <Step enable="True" id="69" name="Else">
+  					<StepText>Else [  ]</StepText>
+  					<Restore state="False" />
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_html; Value:Substitute ( $_html ; "&lt;body&gt;" ; "&lt;body&gt;" &amp; ¶ &amp; $_contextBlock ) ]</StepText>
+  					<Value>
+  						<Calculation>Substitute ( $_html ; "&lt;body&gt;" ; "&lt;body&gt;" &amp; ¶ &amp; $_contextBlock )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Substitute</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; "&lt;body&gt;" ; "&lt;body&gt;" &amp; ¶ &amp; $_contextBlock )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_html</Name>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># E X P A N D   ‡ ‡ L I B [ n ] ‡ ‡   T O K E N S
+   (depth cap; cycle detection)</StepText>
+  					<Text> E X P A N D   ‡ ‡ L I B [ n ] ‡ ‡   T O K E N S
+   (depth cap; cycle detection)</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_depth; Value:0 ]</StepText>
+  					<Value>
+  						<Calculation>0</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">0</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_depth</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_seen; Value:"" ]</StepText>
+  					<Value>
+  						<Calculation>""</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">""</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_seen</Name>
+  				</Step>
+  				
+  <Step enable="True" id="71" name="Loop">
+  					<StepText>Loop [ Flush: Always ]</StepText>
+  					<Restore state="False" />
+  					<FlushType value="Always" />
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ $_depth ≥ 50 ]</StepText>
+  					<Calculation>$_depth ≥ 50</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_depth ≥ 50</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_pStart; Value:Position ( $_html ; "‡‡LIB[" ; 1 ; 1 ) ]</StepText>
+  					<Value>
+  						<Calculation>Position ( $_html ; "‡‡LIB[" ; 1 ; 1 )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; "‡‡LIB[" ; 1 ; 1 )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_pStart</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ not $_pStart ]</StepText>
+  					<Calculation>not $_pStart</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">not</Chunk>
+  						<Chunk type="NoRef"> $_pStart</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_pEnd; Value:Position ( $_html ; "]‡‡" ; $_pStart ; 1 ) ]</StepText>
+  					<Value>
+  						<Calculation>Position ( $_html ; "]‡‡" ; $_pStart ; 1 )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Position</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; "]‡‡" ; $_pStart ; 1 )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_pEnd</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ not $_pEnd or $_pEnd ≤ $_pStart ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>not $_pEnd or $_pEnd ≤ $_pStart</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">not</Chunk>
+  						<Chunk type="NoRef"> $_pEnd </Chunk>
+  						<Chunk type="FunctionRef">or</Chunk>
+  						<Chunk type="NoRef"> $_pEnd ≤ $_pStart</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"Malformed LIB token (missing ]‡‡)" ]</StepText>
+  					<Value>
+  						<Calculation>"Malformed LIB token (missing ]‡‡)"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"Malformed LIB token (missing ]‡‡)"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_token; Value:Middle ( $_html ; $_pStart ; ( $_pEnd - $_pStart ) + 3 ) ]</StepText>
+  					<Value>
+  						<Calculation>Middle ( $_html ; $_pStart ; ( $_pEnd - $_pStart ) + 3 )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Middle</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; $_pStart ; ( $_pEnd - $_pStart ) + 3 )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_token</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_refIndex; Value:GetAsNumber (
+  	Middle ( $_token ; 7 ; Length ( $_token ) - 9 )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsNumber (
+  	Middle ( $_token ; 7 ; Length ( $_token ) - 9 )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsNumber</Chunk>
+  							<Chunk type="NoRef"> (
+  	</Chunk>
+  							<Chunk type="FunctionRef">Middle</Chunk>
+  							<Chunk type="NoRef"> ( $_token ; 7 ; </Chunk>
+  							<Chunk type="FunctionRef">Length</Chunk>
+  							<Chunk type="NoRef"> ( $_token ) - 9 )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_refIndex</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ $_refIndex ≤ 0 ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>$_refIndex ≤ 0</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_refIndex ≤ 0</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"Invalid LIB index in token: " &amp; $_token ]</StepText>
+  					<Value>
+  						<Calculation>"Invalid LIB index in token: " &amp; $_token</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"Invalid LIB index in token: " &amp; $_token</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ PatternCount ( ¶ &amp; $_seen &amp; ¶ ; ¶ &amp; $_refIndex &amp; ¶ ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>PatternCount ( ¶ &amp; $_seen &amp; ¶ ; ¶ &amp; $_refIndex &amp; ¶ )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">PatternCount</Chunk>
+  						<Chunk type="NoRef"> ( ¶ &amp; $_seen &amp; ¶ ; ¶ &amp; $_refIndex &amp; ¶ )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"Cycle detected while expanding LIB dependencies at index: " &amp; $_refIndex ]</StepText>
+  					<Value>
+  						<Calculation>"Cycle detected while expanding LIB dependencies at index: " &amp; $_refIndex</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"Cycle detected while expanding LIB dependencies at index: " &amp; $_refIndex</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_seen; Value:$_seen &amp; Case ( IsEmpty ( $_seen ) ; "" ; "¶" ) &amp; $_refIndex ]</StepText>
+  					<Value>
+  						<Calculation>$_seen &amp; Case ( IsEmpty ( $_seen ) ; "" ; "¶" ) &amp; $_refIndex</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_seen &amp; </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_seen ) ; "" ; "¶" ) &amp; $_refIndex</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_seen</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_refCode; Value:GetAsText (
+  	JSONGetElement ( SOLUTION__all::library_code_json ; "byIndex." &amp; $_refIndex &amp; ".code" )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText (
+  	JSONGetElement ( SOLUTION__all::library_code_json ; "byIndex." &amp; $_refIndex &amp; ".code" )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> (
+  	</Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FieldRef">
+  								<Field table="SOLUTION__all" id="19" name="library_code_json" />
+  							</Chunk>
+  							<Chunk type="NoRef"> ; "byIndex." &amp; $_refIndex &amp; ".code" )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_refCode</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ IsEmpty ( $_refCode ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>IsEmpty ( $_refCode )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_refCode )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_error_message; Value:"Missing LIB dependency: byIndex." &amp; $_refIndex &amp; ".code" ]</StepText>
+  					<Value>
+  						<Calculation>"Missing LIB dependency: byIndex." &amp; $_refIndex &amp; ".code"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"Missing LIB dependency: byIndex." &amp; $_refIndex &amp; ".code"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_error_message</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_html; Value:Substitute ( $_html ; $_token ; $_refCode ) ]</StepText>
+  					<Value>
+  						<Calculation>Substitute ( $_html ; $_token ; $_refCode )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Substitute</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; $_token ; $_refCode )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_html</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_depth; Value:$_depth + 1 ]</StepText>
+  					<Value>
+  						<Calculation>$_depth + 1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_depth + 1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_depth</Name>
+  				</Step>
+  				
+  <Step enable="True" id="73" name="End Loop">
+  					<StepText>End Loop</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># If error, return a simple HTML error page (still as data:text/html)</StepText>
+  					<Text> If error, return a simple HTML error page (still as data:text/html)</Text>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ $_error ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>$_error</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_error</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_html; Value:"&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset='utf-8'&gt;&lt;meta name='viewport' content='width=device-width,initial-scale=1'&gt;&lt;title&gt;Web Viewer Render Error&lt;/title&gt;&lt;/head&gt;&lt;body style='font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px;'&gt;&lt;h3&gt;Render Error&lt;/h3&gt;&lt;pre&gt;" &amp;
+  Substitute ( $_error_message ; "&lt;" ; "&amp;lt;" ) &amp;
+  "&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;" ]</StepText>
+  					<Value>
+  						<Calculation>"&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset='utf-8'&gt;&lt;meta name='viewport' content='width=device-width,initial-scale=1'&gt;&lt;title&gt;Web Viewer Render Error&lt;/title&gt;&lt;/head&gt;&lt;body style='font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px;'&gt;&lt;h3&gt;Render Error&lt;/h3&gt;&lt;pre&gt;" &amp;
+  Substitute ( $_error_message ; "&lt;" ; "&amp;lt;" ) &amp;
+  "&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset='utf-8'&gt;&lt;meta name='viewport' content='width=device-width,initial-scale=1'&gt;&lt;title&gt;Web Viewer Render Error&lt;/title&gt;&lt;/head&gt;&lt;body style='font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px;'&gt;&lt;h3&gt;Render Error&lt;/h3&gt;&lt;pre&gt;" &amp;
+  </Chunk>
+  							<Chunk type="FunctionRef">Substitute</Chunk>
+  							<Chunk type="NoRef"> ( $_error_message ; "&lt;" ; "&amp;lt;" ) &amp;
+  "&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_html</Name>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># B U I L D   U R L
+   data:text/html</StepText>
+  					<Text> B U I L D   U R L
+   data:text/html</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:"data:text/html;charset=utf-8;base64," &amp;
+  Base64Encode ( TextEncode ( $_html ; "utf-8" ; 1 ) )
+  //"data:text/html," &amp; GetAsURLEncoded ( $_html )
+  //"data:text/html," &amp; $_html ]</StepText>
+  					<Value>
+  						<Calculation>"data:text/html;charset=utf-8;base64," &amp;
+  Base64Encode ( TextEncode ( $_html ; "utf-8" ; 1 ) )
+  //"data:text/html," &amp; GetAsURLEncoded ( $_html )
+  //"data:text/html," &amp; $_html</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"data:text/html;charset=utf-8;base64," &amp;
+  </Chunk>
+  							<Chunk type="FunctionRef">Base64Encode</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">TextEncode</Chunk>
+  							<Chunk type="NoRef"> ( $_html ; "utf-8" ; 1 ) )
+  </Chunk>
+  							<Chunk type="FunctionRef">//"data:text/html," &amp; GetAsURLEncoded ( $_html )
+  </Chunk>
+  							<Chunk type="FunctionRef">//"data:text/html," &amp; $_html</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True // End single-pass loop ]</StepText>
+  					<Calculation>True // End single-pass loop</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  						<Chunk type="NoRef"> </Chunk>
+  						<Chunk type="FunctionRef">// End single-pass loop</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="73" name="End Loop">
+  					<StepText>End Loop</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># C L E A N U P</StepText>
+  					<Text> C L E A N U P</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="103" name="Exit Script">
+  					<StepText>Exit Script [ Result: $_result ]</StepText>
+  					<Calculation>$_result</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_result</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  			
+</fmxmlsnippet>

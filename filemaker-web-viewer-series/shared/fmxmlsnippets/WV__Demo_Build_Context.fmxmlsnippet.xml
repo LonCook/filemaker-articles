@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> WV__Demo_Build_Context</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Purpose: Build the two-way Web Viewer context JSON from the demo fields and show the reader the payload.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> In: FOCUS::g_wv_module_index, FOCUS::g_wv_demo_movie_id, FOCUS::g_wv_demo_genre_id</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Out: FOCUS::g_wv_context_json, FOCUS::g_wv_status; exits with raw context JSON.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Anchor: FOCUS. Writes use Set Field By Name so copied snippets do not depend on field IDs.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Calls: . webviewer . context . build ( -index ; -movie_id ; -genre_id ) : json</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified: 19 Jul 2026, Codex - added FileMaker-owned action acknowledgement state.</Text>
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let (
+  [
+    raw = GetField ( "FOCUS::g_wv_module_index" )
+  ] ;
+  Case (
+    IsEmpty ( raw ) ; 62 ;
+    GetAsNumber ( raw )
+  )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_index</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[GetAsText ( GetField ( "FOCUS::g_wv_demo_movie_id" ) )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_movie_id</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[GetAsText ( GetField ( "FOCUS::g_wv_demo_genre_id" ) )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_genre_id</Name>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "movie_id" ; $_movie_id ; JSONString ]
+  ; [ "genre_id" ; $_genre_id ; JSONString ]
+)]]></Calculation>
+    <Script id="454" name=". webviewer . context . build ( -index ; -movie_id ; -genre_id ) : json"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Get ( ScriptResult )]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let (
+  [
+    base = $_context_json ;
+    valid = EvaluationError ( JSONFormatElements ( base ) ) = 0 ;
+    action_count = GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) ;
+    action_type = GetAsText ( GetField ( "FOCUS::g_wv_action_type" ) ) ;
+    action_status = GetAsText ( GetField ( "FOCUS::g_wv_action_status" ) )
+  ] ;
+  Case (
+    not valid ; base ;
+    JSONSetElement ( base
+      ; [ "__wv.source" ; "article_02_demo" ; JSONString ]
+      ; [ "actions.count" ; action_count ; JSONNumber ]
+      ; [ "actions.last_type" ; action_type ; JSONString ]
+      ; [ "actions.status" ; Case (
+          IsEmpty ( action_status ) ; "Waiting for an action" ; action_status
+        ) ; JSONString ]
+    )
+  )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_context_json</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Case (
+  JSONFormatElements ( $_context_json ) = "?" ; $_context_json ;
+  JSONFormatElements ( $_context_json )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_context_display</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Case (
+  JSONFormatElements ( $_context_json ) = "?" ;
+    "Build context failed: the framework script returned invalid JSON." ;
+  "Context built for module " & $_index &
+    If ( not IsEmpty ( $_movie_id ) ; " | movie_id " & $_movie_id ; "" ) &
+    If ( not IsEmpty ( $_genre_id ) ; " | genre_id " & $_genre_id ; "" )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_status</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation><![CDATA[$_context_display]]></Calculation>
+    </Result>
+    <TargetName>
+      <Calculation><![CDATA["FOCUS::g_wv_context_json"]]></Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation><![CDATA[$_status]]></Calculation>
+    </Result>
+    <TargetName>
+      <Calculation><![CDATA["FOCUS::g_wv_status"]]></Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation><![CDATA[$_context_json]]></Calculation>
+  </Step>
+</fmxmlsnippet>

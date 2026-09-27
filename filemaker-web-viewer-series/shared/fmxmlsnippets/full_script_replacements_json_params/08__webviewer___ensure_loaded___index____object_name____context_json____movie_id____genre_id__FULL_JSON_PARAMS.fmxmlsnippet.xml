@@ -1,0 +1,1271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>FULL REPLACEMENT for script: . webviewer . ensure loaded ( index ; -object_name ; -context_json ; -movie_id ; -genre_id ; ... ) :</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Select all existing steps in this script, paste this snippet, then smoke test.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Purpose:	Self-heal loader for a single Web Viewer instance (push-first, reload-if-needed, retry-push once).</StepText>
+  					<Text> Purpose:	Self-heal loader for a single Web Viewer instance (push-first, reload-if-needed, retry-push once).</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># In:			index					(required) LIBRARY_CODE index/page id
+  			-object_name				(optional; required for targeting a specific WV object; if blank, returns "noWV")
+  			-context_json			(optional) if provided, skips context.build and uses this context directly
+  			-movie_id				(optional) selector-driven context.build input
+  			-genre_id				(optional) selector-driven context.build input
+  			-context_override_json	(optional; default {} ) override passed into context.build
+  			-force_reload			(optional; default 0) forces reload before push
+  </StepText>
+  					<Text> In:			index					(required) LIBRARY_CODE index/page id
+  			-object_name				(optional; required for targeting a specific WV object; if blank, returns "noWV")
+  			-context_json			(optional) if provided, skips context.build and uses this context directly
+  			-movie_id				(optional) selector-driven context.build input
+  			-genre_id				(optional) selector-driven context.build input
+  			-context_override_json	(optional; default {} ) override passed into context.build
+  			-force_reload			(optional; default 0) forces reload before push
+  </Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Out:		json				{"status":"ok|noWV|err","did_reload":0|1,"message":"..."}
+  			status from push context: ok/noWV/err. did_reload indicates whether . webviewer . load was invoked.
+  </StepText>
+  					<Text> Out:		json				{"status":"ok|noWV|err","did_reload":0|1,"message":"..."}
+  			status from push context: ok/noWV/err. did_reload indicates whether . webviewer . load was invoked.
+  </Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Notes:		Uses $$wv_loaded_map keyed by WindowName + LayoutTO + ObjectName. Attempts push-first unless force_reload=1. Reloads only when necessary. Retries push once after reload.
+  </StepText>
+  					<Text> Notes:		Uses $$wv_loaded_map keyed by WindowName + LayoutTO + ObjectName. Attempts push-first unless force_reload=1. Reloads only when necessary. Retries push once after reload.
+  </Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Modified:	07 Feb 2026, 01hr48PT — Lon Cook — lon@deconstrukted.com : corrected $_ctx_sig definition to use CryptoDigest ()
+  			29 Jan 2026, 23hr13PT — Lon Cook — lon@deconstrukted.com : skip push if context unchanged
+  			29 Jan 2026, 22hr??PT — Lon Cook — lon@deconstrukted.com : restored after overwrite; supports prebuilt context_json and selector-driven context.build</StepText>
+  					<Text> Modified:	07 Feb 2026, 01hr48PT — Lon Cook — lon@deconstrukted.com : corrected $_ctx_sig definition to use CryptoDigest ()
+  			29 Jan 2026, 23hr13PT — Lon Cook — lon@deconstrukted.com : skip push if context unchanged
+  			29 Jan 2026, 22hr??PT — Lon Cook — lon@deconstrukted.com : restored after overwrite; supports prebuilt context_json and selector-driven context.build</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="86" name="Set Error Capture">
+  					<StepText>Set Error Capture [ On ]</StepText>
+  					<Set state="True" />
+  				</Step>
+  				
+  <Step enable="True" id="71" name="Loop">
+  					<StepText>Loop [ Flush: Always ]</StepText>
+  					<Restore state="False" />
+  					<FlushType value="Always" />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</StepText>
+  					<Text> D E C L A R E   A N D   V A L I D A T E   P A R A M E T E R S</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation><![CDATA[Let ( [
+    ~p = Get ( ScriptParameter )
+  ; ~index_error = EvaluationError ( JSONGetElement ( ~p ; "index" ) )
+  ; ~index_raw = Case ( ~index_error ; "" ; JSONGetElement ( ~p ; "index" ) )
+  ; $_index = Case ( IsEmpty ( ~index_raw ) ; "" ; GetAsNumber ( ~index_raw ) )
+  ; ~object_error = EvaluationError ( JSONGetElement ( ~p ; "object_name" ) )
+  ; $_object_name = Case ( ~object_error ; "" ; GetAsText ( JSONGetElement ( ~p ; "object_name" ) ) )
+  ; ~context_error = EvaluationError ( JSONGetElement ( ~p ; "context_json" ) )
+  ; $_context_json = Case ( ~context_error ; "" ; JSONGetElement ( ~p ; "context_json" ) )
+  ; ~movie_error = EvaluationError ( JSONGetElement ( ~p ; "movie_id" ) )
+  ; $_movie_id = Case ( ~movie_error ; "" ; GetAsText ( JSONGetElement ( ~p ; "movie_id" ) ) )
+  ; ~genre_error = EvaluationError ( JSONGetElement ( ~p ; "genre_id" ) )
+  ; $_genre_id = Case ( ~genre_error ; "" ; GetAsText ( JSONGetElement ( ~p ; "genre_id" ) ) )
+  ; ~override_error = EvaluationError ( JSONGetElement ( ~p ; "context_override_json" ) )
+  ; ~override_raw = Case ( ~override_error ; "" ; JSONGetElement ( ~p ; "context_override_json" ) )
+  ; $_context_override_json = Case ( IsEmpty ( ~override_raw ) ; "{}" ; GetAsText ( ~override_raw ) )
+  ; ~force_error = EvaluationError ( JSONGetElement ( ~p ; "force_reload" ) )
+  ; ~force_raw = Case ( ~force_error ; "" ; JSONGetElement ( ~p ; "force_reload" ) )
+  ; $_force_reload = Case ( IsEmpty ( ~force_raw ) ; 0 ; GetAsNumber ( ~force_raw ) )
+  ; ~index_invalid = ~index_error or IsEmpty ( ~index_raw ) or $_index ≤ 0
+  ; $_invalid_params = Case ( ~index_invalid ; "index" ; "" )
+  ; $_error_message = Case (
+      not IsEmpty ( $_invalid_params ) ;
+      "Missing/invalid parameter(s): " & Substitute ( $_invalid_params ; ¶ ; ", " ) ;
+      ""
+    )
+] ;
+  Case ( not IsEmpty ( $_invalid_params ) ; 10 ; 0 )
+)]]></Calculation>
+    </Value>
+    <Repetition>
+      <Calculation><![CDATA[1]]></Calculation>
+    </Repetition>
+    <Name>$_error</Name>
+  </Step>
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ $_error ]</StepText>
+  					<Calculation>$_error</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_error</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># I N I T   R E S U L T</StepText>
+  					<Text> I N I T   R E S U L T</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:JSONSetElement ( "{}"
+  	; [ "status"		; ""		; JSONString ]
+  	; [ "did_reload"	; 0		; JSONNumber ]
+  	; [ "message"	; ""		; JSONString ]
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( "{}"
+  	; [ "status"		; ""		; JSONString ]
+  	; [ "did_reload"	; 0		; JSONNumber ]
+  	; [ "message"	; ""		; JSONString ]
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( "{}"
+  	; [ "status"		; ""		; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "did_reload"	; 0		; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "message"	; ""		; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># N O R M A L I Z E</StepText>
+  					<Text> N O R M A L I Z E</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_override; Value:Case ( IsEmpty ( $_context_override_json ) ; "{}" ; $_context_override_json ) ]</StepText>
+  					<Value>
+  						<Calculation>Case ( IsEmpty ( $_context_override_json ) ; "{}" ; $_context_override_json )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_context_override_json ) ; "{}" ; $_context_override_json )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_override</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ IsEmpty ( $_object_name ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>IsEmpty ( $_object_name )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_object_name )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:JSONSetElement ( $_result
+  	; [ "status"		; "noWV"					; JSONString ]
+  	; [ "did_reload"	; 0						; JSONNumber ]
+  	; [ "message"	; "Missing object_name"	; JSONString ]
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_result
+  	; [ "status"		; "noWV"					; JSONString ]
+  	; [ "did_reload"	; 0						; JSONNumber ]
+  	; [ "message"	; "Missing object_name"	; JSONString ]
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_result
+  	; [ "status"		; "noWV"					; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "did_reload"	; 0						; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "message"	; "Missing object_name"	; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_map_key; Value:Let ( [
+  	  ~w  = Get ( WindowName )
+  	; ~to = GetLayoutObjectAttribute ( "" ; "tableName" )
+  	; ~to = Case ( IsEmpty ( ~to ) ; Get ( LayoutTableName ) ; ~to )
+  	];
+  
+  	~w &amp; "¶" &amp; ~to &amp; "¶" &amp; $_object_name
+  
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ( [
+  	  ~w  = Get ( WindowName )
+  	; ~to = GetLayoutObjectAttribute ( "" ; "tableName" )
+  	; ~to = Case ( IsEmpty ( ~to ) ; Get ( LayoutTableName ) ; ~to )
+  	];
+  
+  	~w &amp; "¶" &amp; ~to &amp; "¶" &amp; $_object_name
+  
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ( [
+  	  ~w  = </Chunk>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">WindowName</Chunk>
+  							<Chunk type="NoRef"> )
+  	; ~to = </Chunk>
+  							<Chunk type="FunctionRef">GetLayoutObjectAttribute</Chunk>
+  							<Chunk type="NoRef"> ( "" ; "tableName" )
+  	; ~to = </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( ~to ) ; </Chunk>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">LayoutTableName</Chunk>
+  							<Chunk type="NoRef"> ) ; ~to )
+  	];
+  
+  	~w &amp; "¶" &amp; ~to &amp; "¶" &amp; $_object_name
+  
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_map_key</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_map; Value:Let ([
+  	 ~m = Case ( IsEmpty ( $$wv_loaded_map ) ; "{}" ; $$wv_loaded_map )
+  	];
+  
+  	~m
+  
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ([
+  	 ~m = Case ( IsEmpty ( $$wv_loaded_map ) ; "{}" ; $$wv_loaded_map )
+  	];
+  
+  	~m
+  
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ([
+  	 ~m = </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $$wv_loaded_map ) ; "{}" ; $$wv_loaded_map )
+  	];
+  
+  	~m
+  
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_map</Name>
+  				</Step>
+  				
+  <Step enable="False" id="141" name="Set Variable">
+  					<StepText>//  Set Variable [ $_was_loaded; Value:GetAsNumber ( JSONGetElement ( $_map ; Quote ( $_map_key ) ) ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsNumber ( JSONGetElement ( $_map ; Quote ( $_map_key ) ) )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsNumber</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) ) )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_was_loaded</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_was_loaded; Value:GetAsNumber ( JSONGetElement ( $_map ; Quote ( $_map_key ) &amp; ".index" ) ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsNumber ( JSONGetElement ( $_map ; Quote ( $_map_key ) &amp; ".index" ) )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsNumber</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) &amp; ".index" ) )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_was_loaded</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Resolve context: use -context_json if provided; else build via . webviewer . context . build</StepText>
+  					<Text> Resolve context: use -context_json if provided; else build via . webviewer . context . build</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_ctx; Value:Case (
+  	  not IsEmpty ( $_context_json ) and JSONFormatElements ( $_context_json ) ≠ "?"
+  	; $_context_json
+  	; ""
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Case (
+  	  not IsEmpty ( $_context_json ) and JSONFormatElements ( $_context_json ) ≠ "?"
+  	; $_context_json
+  	; ""
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+  	  </Chunk>
+  							<Chunk type="FunctionRef">not</Chunk>
+  							<Chunk type="NoRef"> </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_context_json ) </Chunk>
+  							<Chunk type="FunctionRef">and</Chunk>
+  							<Chunk type="NoRef"> </Chunk>
+  							<Chunk type="FunctionRef">JSONFormatElements</Chunk>
+  							<Chunk type="NoRef"> ( $_context_json ) ≠ "?"
+  	; $_context_json
+  	; ""
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_ctx</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ IsEmpty ( $_ctx ) ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>IsEmpty ( $_ctx )</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_ctx )</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "movie_id" ; $_movie_id ; JSONString ]
+  ; [ "genre_id" ; $_genre_id ; JSONString ]
+  ; [ "context_override_json" ; Case ( IsEmpty ( $_override ) ; "{}" ; $_override ) ; JSONObject ]
+)]]></Calculation>
+    <Script id="454" name=". webviewer . context . build ( -index ; -movie_id ; -genre_id ) : json"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_ctx; Value:Get ( ScriptResult ) ]</StepText>
+  					<Value>
+  						<Calculation>Get ( ScriptResult )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">ScriptResult</Chunk>
+  							<Chunk type="NoRef"> )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_ctx</Name>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># S K I P   P U S H   I F   C O N T E X T   U N C H A N G E D</StepText>
+  					<Text> S K I P   P U S H   I F   C O N T E X T   U N C H A N G E D</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_ctx_canon; Value:Case (
+  	  IsEmpty ( $_ctx ) ; "{}"
+  	; JSONFormatElements ( $_ctx ) = "?" ; "{}"
+  	; JSONFormatElements ( $_ctx )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Case (
+  	  IsEmpty ( $_ctx ) ; "{}"
+  	; JSONFormatElements ( $_ctx ) = "?" ; "{}"
+  	; JSONFormatElements ( $_ctx )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+  	  </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_ctx ) ; "{}"
+  	; </Chunk>
+  							<Chunk type="FunctionRef">JSONFormatElements</Chunk>
+  							<Chunk type="NoRef"> ( $_ctx ) = "?" ; "{}"
+  	; </Chunk>
+  							<Chunk type="FunctionRef">JSONFormatElements</Chunk>
+  							<Chunk type="NoRef"> ( $_ctx )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_ctx_canon</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText>#Prefer __wv.pushSig for change detection; JSON canonicalization may be stable or fail, causing false “unchanged” skips.</StepText>
+  					<Text>Prefer __wv.pushSig for change detection; JSON canonicalization may be stable or fail, causing false “unchanged” skips.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_ctx_sig; Value:Let ([
+    ~push = GetAsText ( JSONGetElement ( $_ctx ; "__wv.pushSig" ) )
+  ];
+    Case (
+      not IsEmpty ( ~push ) ; ~push ;
+      IsEmpty ( $_ctx_canon ) ; "" ;
+      CryptDigest ( $_ctx_canon ; "MD5" )
+    )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ([
+    ~push = GetAsText ( JSONGetElement ( $_ctx ; "__wv.pushSig" ) )
+  ];
+    Case (
+      not IsEmpty ( ~push ) ; ~push ;
+      IsEmpty ( $_ctx_canon ) ; "" ;
+      CryptDigest ( $_ctx_canon ; "MD5" )
+    )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ([
+    ~push = </Chunk>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_ctx ; "__wv.pushSig" ) )
+  ];
+    </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+      </Chunk>
+  							<Chunk type="FunctionRef">not</Chunk>
+  							<Chunk type="NoRef"> </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( ~push ) ; ~push ;
+      </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_ctx_canon ) ; "" ;
+      </Chunk>
+  							<Chunk type="FunctionRef">CryptDigest</Chunk>
+  							<Chunk type="NoRef"> ( $_ctx_canon ; "MD5" )
+    )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_ctx_sig</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_sig_map; Value:Case ( IsEmpty ( $$wv_ctx_sig_map ) ; "{}" ; $$wv_ctx_sig_map ) ]</StepText>
+  					<Value>
+  						<Calculation>Case ( IsEmpty ( $$wv_ctx_sig_map ) ; "{}" ; $$wv_ctx_sig_map )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $$wv_ctx_sig_map ) ; "{}" ; $$wv_ctx_sig_map )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_sig_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_sig_prev; Value:GetAsText ( JSONGetElement ( $_sig_map ; Quote ( $_map_key ) ) ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText ( JSONGetElement ( $_sig_map ; Quote ( $_map_key ) ) )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">JSONGetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_sig_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) ) )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_sig_prev</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ 
+  not $_force_reload
+  and $_was_loaded = $_index
+  and not IsEmpty ( $_ctx_sig )
+  and $_ctx_sig = $_sig_prev ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>
+  not $_force_reload
+  and $_was_loaded = $_index
+  and not IsEmpty ( $_ctx_sig )
+  and $_ctx_sig = $_sig_prev</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">
+  </Chunk>
+  						<Chunk type="FunctionRef">not</Chunk>
+  						<Chunk type="NoRef"> $_force_reload
+  </Chunk>
+  						<Chunk type="FunctionRef">and</Chunk>
+  						<Chunk type="NoRef"> $_was_loaded = $_index
+  </Chunk>
+  						<Chunk type="FunctionRef">and</Chunk>
+  						<Chunk type="NoRef"> </Chunk>
+  						<Chunk type="FunctionRef">not</Chunk>
+  						<Chunk type="NoRef"> </Chunk>
+  						<Chunk type="FunctionRef">IsEmpty</Chunk>
+  						<Chunk type="NoRef"> ( $_ctx_sig )
+  </Chunk>
+  						<Chunk type="FunctionRef">and</Chunk>
+  						<Chunk type="NoRef"> $_ctx_sig = $_sig_prev</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Context unchanged; treat as ok and avoid unnecessary render.</StepText>
+  					<Text> Context unchanged; treat as ok and avoid unnecessary render.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:JSONSetElement ( $_result
+  	; [ "status"		; "ok"							; JSONString ]
+  	; [ "did_reload"	; $_did_reload					; JSONNumber ]
+  	; [ "message"		; "skip (context unchanged)"	; JSONString ]
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_result
+  	; [ "status"		; "ok"							; JSONString ]
+  	; [ "did_reload"	; $_did_reload					; JSONNumber ]
+  	; [ "message"		; "skip (context unchanged)"	; JSONString ]
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_result
+  	; [ "status"		; "ok"							; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "did_reload"	; $_did_reload					; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "message"		; "skip (context unchanged)"	; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Store signature now so repeated calls in the same cycle can short-circuit.</StepText>
+  					<Text> Store signature now so repeated calls in the same cycle can short-circuit.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_sig_map; Value:JSONSetElement ( $_sig_map ; Quote ( $_map_key ) ; $_ctx_sig ; JSONString ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_sig_map ; Quote ( $_map_key ) ; $_ctx_sig ; JSONString )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_sig_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) ; $_ctx_sig ; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_sig_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $$wv_ctx_sig_map; Value:$_sig_map ]</StepText>
+  					<Value>
+  						<Calculation>$_sig_map</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_sig_map</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$$wv_ctx_sig_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># P U S H   C O N T E X T</StepText>
+  					<Text> P U S H   C O N T E X T</Text>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_did_reload; Value:0 ]</StepText>
+  					<Value>
+  						<Calculation>0</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">0</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_did_reload</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_push_status; Value:"" ]</StepText>
+  					<Value>
+  						<Calculation>""</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">""</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_push_status</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ not $_force_reload ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>not $_force_reload</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">not</Chunk>
+  						<Chunk type="NoRef"> $_force_reload</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "object_name" ; $_object_name ; JSONString ]
+  ; [ "context_json" ; $_ctx ; JSONString ]
+)]]></Calculation>
+    <Script id="449" name=". webviewer . push context ( -object_name ; -context_json )"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_push_status; Value:GetAsText ( Get ( ScriptResult ) ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">ScriptResult</Chunk>
+  							<Chunk type="NoRef"> ) )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_push_status</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ $_push_status = "ok" ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>$_push_status = "ok"</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_push_status = "ok"</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_map; Value:JSONSetElement ( $_map ; Quote ( $_map_key ) ; 1 ; JSONNumber ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_map ; Quote ( $_map_key ) ; 1 ; JSONNumber )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) ; 1 ; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $$wv_loaded_map; Value:$_map ]</StepText>
+  					<Value>
+  						<Calculation>$_map</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_map</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$$wv_loaded_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:JSONSetElement ( $_result
+  	; [ "status"		; "ok"			; JSONString ]
+  	; [ "did_reload"	; $_did_reload	; JSONNumber ]
+  	; [ "message"	; ""				; JSONString ]
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_result
+  	; [ "status"		; "ok"			; JSONString ]
+  	; [ "did_reload"	; $_did_reload	; JSONNumber ]
+  	; [ "message"	; ""				; JSONString ]
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_result
+  	; [ "status"		; "ok"			; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "did_reload"	; $_did_reload	; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "message"	; ""				; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True ]</StepText>
+  					<Calculation>True</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:JSONSetElement ( $_result
+  	; [ "status"		; "noWV"						; JSONString ]
+  	; [ "did_reload"	; 0							; JSONNumber ]
+  	; [ "message"	; "Web Viewer not available"	; JSONString ]
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_result
+  	; [ "status"		; "noWV"						; JSONString ]
+  	; [ "did_reload"	; 0							; JSONNumber ]
+  	; [ "message"	; "Web Viewer not available"	; JSONString ]
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_result
+  	; [ "status"		; "noWV"						; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "did_reload"	; 0							; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "message"	; "Web Viewer not available"	; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ $_force_reload or $_push_status = "noWV" ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>$_force_reload or $_push_status = "noWV"</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_force_reload </Chunk>
+  						<Chunk type="FunctionRef">or</Chunk>
+  						<Chunk type="NoRef"> $_push_status = "noWV"</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Reload WV runtime only when necessary (force_reload or push failed). Then retry push once.</StepText>
+  					<Text> Reload WV runtime only when necessary (force_reload or push failed). Then retry push once.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "object_name" ; $_object_name ; JSONString ]
+)]]></Calculation>
+    <Script id="448" name=". webviewer . load ( index ; -object_name )"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_did_reload; Value:1 ]</StepText>
+  					<Value>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_did_reload</Name>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "object_name" ; $_object_name ; JSONString ]
+  ; [ "context_json" ; $_ctx ; JSONString ]
+)]]></Calculation>
+    <Script id="449" name=". webviewer . push context ( -object_name ; -context_json )"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_push_status; Value:GetAsText ( Get ( ScriptResult ) ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">ScriptResult</Chunk>
+  							<Chunk type="NoRef"> ) )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_push_status</Name>
+  				</Step>
+  				
+  <Step enable="True" id="68" name="If">
+  					<StepText>If [ $_push_status = "ok" ]</StepText>
+  					<Restore state="False" />
+  					<Calculation>$_push_status = "ok"</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_push_status = "ok"</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="False" id="141" name="Set Variable">
+  					<StepText>//  Set Variable [ $_map; Value:JSONSetElement ( $_map ; Quote ( $_map_key ) ; 1 ; JSONNumber ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_map ; Quote ( $_map_key ) ; 1 ; JSONNumber )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) ; 1 ; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_map; Value:Let ([
+  	  ~stamp = JSONSetElement ( "{}"
+  		; [ "ts"	; GetAsText ( Get ( CurrentTimestamp ) ) ; JSONString ]
+  		; [ "index"	; GetAsNumber ( $_index ) ; JSONNumber ]
+  	)
+  	];
+  
+  	JSONSetElement ( $_map ; Quote ( $_map_key ) ; ~stamp ; JSONObject )
+  
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let ([
+  	  ~stamp = JSONSetElement ( "{}"
+  		; [ "ts"	; GetAsText ( Get ( CurrentTimestamp ) ) ; JSONString ]
+  		; [ "index"	; GetAsNumber ( $_index ) ; JSONNumber ]
+  	)
+  	];
+  
+  	JSONSetElement ( $_map ; Quote ( $_map_key ) ; ~stamp ; JSONObject )
+  
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> ([
+  	  ~stamp = </Chunk>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( "{}"
+  		; [ "ts"	; </Chunk>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">CurrentTimestamp</Chunk>
+  							<Chunk type="NoRef"> ) ) ; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  		; [ "index"	; </Chunk>
+  							<Chunk type="FunctionRef">GetAsNumber</Chunk>
+  							<Chunk type="NoRef"> ( $_index ) ; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	)
+  	];
+  
+  	</Chunk>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_map ; </Chunk>
+  							<Chunk type="FunctionRef">Quote</Chunk>
+  							<Chunk type="NoRef"> ( $_map_key ) ; ~stamp ; </Chunk>
+  							<Chunk type="FunctionRef">JSONObject</Chunk>
+  							<Chunk type="NoRef"> )
+  
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $$wv_loaded_map; Value:$_map ]</StepText>
+  					<Value>
+  						<Calculation>$_map</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_map</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$$wv_loaded_map</Name>
+  				</Step>
+  				
+  <Step enable="True" id="70" name="End If">
+  					<StepText>End If</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_result; Value:JSONSetElement ( $_result
+  	; [ "status"		; Case ( IsEmpty ( $_push_status ) ; "err" ; $_push_status ) ; JSONString ]
+  	; [ "did_reload"	; $_did_reload	; JSONNumber ]
+  	; [ "message"		; Case (
+  							$_push_status = "ok"	; ""
+  							; $_push_status = "noWV"	; "Web Viewer not available"
+  							; "Push failed after reload"
+  						  ) ; JSONString ]
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>JSONSetElement ( $_result
+  	; [ "status"		; Case ( IsEmpty ( $_push_status ) ; "err" ; $_push_status ) ; JSONString ]
+  	; [ "did_reload"	; $_did_reload	; JSONNumber ]
+  	; [ "message"		; Case (
+  							$_push_status = "ok"	; ""
+  							; $_push_status = "noWV"	; "Web Viewer not available"
+  							; "Push failed after reload"
+  						  ) ; JSONString ]
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">JSONSetElement</Chunk>
+  							<Chunk type="NoRef"> ( $_result
+  	; [ "status"		; </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_push_status ) ; "err" ; $_push_status ) ; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "did_reload"	; $_did_reload	; </Chunk>
+  							<Chunk type="FunctionRef">JSONNumber</Chunk>
+  							<Chunk type="NoRef"> ]
+  	; [ "message"		; </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+  							$_push_status = "ok"	; ""
+  							; $_push_status = "noWV"	; "Web Viewer not available"
+  							; "Push failed after reload"
+  						  ) ; </Chunk>
+  							<Chunk type="FunctionRef">JSONString</Chunk>
+  							<Chunk type="NoRef"> ]
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="72" name="Exit Loop If">
+  					<StepText>Exit Loop If [ True //END Single-pass loop ]</StepText>
+  					<Calculation>True //END Single-pass loop</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="FunctionRef">True</Chunk>
+  						<Chunk type="NoRef"> </Chunk>
+  						<Chunk type="FunctionRef">//END Single-pass loop</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="73" name="End Loop">
+  					<StepText>End Loop</StepText>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="103" name="Exit Script">
+  					<StepText>Exit Script [ Result: $_result ]</StepText>
+  					<Calculation>$_result</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_result</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  			
+</fmxmlsnippet>

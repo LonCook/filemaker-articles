@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace ensure-cache call to build-cache that uses #().</Text>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "version" ; $_desiredVersion ; JSONString ]
+)]]></Calculation>
+    <Script id="437" name="library_json . build cache( version ) : json"/>
+  </Step>
+</fmxmlsnippet>

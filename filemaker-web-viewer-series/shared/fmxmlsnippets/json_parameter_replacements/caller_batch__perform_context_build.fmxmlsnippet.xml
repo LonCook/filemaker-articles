@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace batch call to context.build that uses #().</Text>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "movie_id" ; $_movie_id ; JSONString ]
+  ; [ "genre_id" ; $_genre_id ; JSONString ]
+  ; [ "context_override_json" ; Case ( IsEmpty ( $_context_override ) ; "{}" ; $_context_override ) ; JSONObject ]
+)]]></Calculation>
+    <Script id="454" name=". webviewer . context . build ( -index ; -movie_id ; -genre_id ) : json"/>
+  </Step>
+</fmxmlsnippet>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> WV__Demo_Handle_Action</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Purpose: Receive an action envelope from the Web Viewer and make it visible in FileMaker.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> In: Get ( ScriptParameter ) as raw JSON.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Out: JSON status object.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Anchor: FOCUS. Demo teaching glue; does not update production records.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Calls: WV__Demo_Build_Context, WV__Demo_Push_Context.</Text>
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsText ( Get ( ScriptParameter ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_raw</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[JSONFormatElements ( $_raw )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_formatted</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[EvaluationError ( JSONFormatElements ( $_raw ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_json_error</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[EvaluationError ( JSONGetElementType ( $_raw ; "" ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_root_error</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[IsEmpty ( $_raw ) or $_formatted = "?" or
+$_json_error <> 0 or $_root_error <> 0 or
+JSONGetElementType ( $_raw ; "" ) <> JSONObject]]></Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_raw]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[""]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA["Rejected action: invalid JSON envelope."]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_json" ; JSONString ]
+)]]></Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsText ( JSONGetElement ( $_raw ; "type" ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_type</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsNumber ( JSONGetElement ( $_raw ; "__wv_action.version" ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_version</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsText ( JSONGetElement ( $_raw ; "__wv_action.source" ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_source</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[Let ( [
+  type_error = EvaluationError ( JSONGetElement ( $_raw ; "type" ) ) ;
+  payload_error = EvaluationError ( JSONGetElementType ( $_raw ; "payload" ) ) ;
+  meta_error = EvaluationError ( JSONGetElementType ( $_raw ; "__wv_action" ) ) ;
+  version_error = EvaluationError ( JSONGetElement ( $_raw ; "__wv_action.version" ) ) ;
+  source_error = EvaluationError ( JSONGetElement ( $_raw ; "__wv_action.source" ) )
+] ;
+  type_error <> 0 or payload_error <> 0 or meta_error <> 0 or
+  version_error <> 0 or source_error <> 0 or
+  IsEmpty ( $_type ) or IsEmpty ( $_source ) or $_version <> 1 or
+  JSONGetElementType ( $_raw ; "type" ) <> JSONString or
+  JSONGetElementType ( $_raw ; "payload" ) <> JSONObject or
+  JSONGetElementType ( $_raw ; "__wv_action" ) <> JSONObject or
+  JSONGetElementType ( $_raw ; "__wv_action.version" ) <> JSONNumber or
+  JSONGetElementType ( $_raw ; "__wv_action.source" ) <> JSONString
+)]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_invalid_envelope</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[$_invalid_envelope]]></Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_formatted]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[""]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA["Rejected action: envelope shape is not valid."]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "invalid_envelope" ; JSONString ]
+)]]></Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[$_type = "demo.inspect_context" or $_type = "demo.mark_movie"]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_known_action</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False"/>
+    <Calculation><![CDATA[not $_known_action]]></Calculation>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_formatted]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_type]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA["Rejected action: unknown type " & $_type]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "unknown_action" ; JSONString ]
+  ; [ "type" ; $_type ; JSONString ]
+)]]></Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If"/>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) + 1]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA["Handled " & $_type]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_status</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_formatted]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_json"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_type]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_type"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_count]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_count"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result><Calculation><![CDATA[$_status]]></Calculation></Result>
+    <TargetName><Calculation><![CDATA["FOCUS::g_wv_action_status"]]></Calculation></TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[""]]></Calculation>
+    <Script id="480" name="WV__Demo_Build_Context"/>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[""]]></Calculation>
+    <Script id="482" name="WV__Demo_Push_Context"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value><Calculation><![CDATA[GetAsText ( Get ( ScriptResult ) )]]></Calculation></Value>
+    <Repetition><Calculation><![CDATA[1]]></Calculation></Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "ok" ; 1 ; JSONBoolean ]
+  ; [ "type" ; $_type ; JSONString ]
+  ; [ "count" ; $_count ; JSONNumber ]
+  ; [ "push_result" ; $_push_result ; JSONString ]
+)]]></Calculation>
+  </Step>
+</fmxmlsnippet>

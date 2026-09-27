@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Article 4 Rating Landscape Harness</title>
+  <style>
+    html,body{min-height:100%;margin:0;background:#0b0d0f;color:#ece8e1;font-family:system-ui,sans-serif}
+    .harness{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.12);background:#151819}
+    .harness button{border:1px solid #766055;border-radius:5px;background:#211d1b;color:#e7d7cf;padding:6px 9px;cursor:pointer}
+    .harness pre{flex:1;min-width:0;margin:0;overflow:hidden;color:#9da5a3;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+    .wv-hybrid-page{height:calc(100vh - 49px)}
+  </style>
+</head>
+<body>
+  <div class="harness">
+    <button id="loadPopulated">All ratings</button>
+    <button id="loadBand">Acknowledged band</button>
+    <button id="loadEmpty">Empty state</button>
+    <pre id="actionLog">No action sent.</pre>
+  </div>
+  <section class="wv-hybrid-page" data-wv-page="hybrid-rating">
+    <div class="wv-hybrid-loading" role="status">Loading rating landscape…</div>
+  </section>
+  <script>
+    window.WV = {
+      registerRenderer: function (fn) { this.render = fn; },
+      sendAction: function (type, payload, options) {
+        document.getElementById("actionLog").textContent = JSON.stringify({ type:type, payload:payload, options:options });
+        return "harness";
+      }
+    };
+    var names = [
+      "AL: Twilight Cargo", "AO: Static Crown", "AQ: Velvet Storm", "AS: Crystal Fault", "AU: Copper Rise",
+      "AX: Amber Void", "BA: Glass Harbor", "BC: Quiet Orbit", "BE: Hollow Engine", "BG: Pale Vector",
+      "BI: Soft Collision", "BK: Night Archive", "BM: Borrowed Sky", "BO: Signal Garden", "BQ: Neon Dawn",
+      "BS: Paper Comet", "BU: Cold Meridian", "BW: Liminal Port", "BY: Echo Current", "CA: Remote Season",
+      "CC: Western Static", "CE: Broken Index", "CG: Winter Relay", "CI: Parallel Dust", "CK: Narrow Horizon",
+      "CM: Last Receiver", "CO: Dark Frequency", "CQ: Minor Planet", "CS: Silver Transit", "CU: Lantern Code",
+      "CW: North Channel", "CY: False Morning", "DA: Red Signal"
+    ];
+    var rows = names.map(function (name, index) {
+      var year = 1997 + ((index * 7) % 29);
+      var rating = 6.1 + (((index * 37) % 255) / 100);
+      var rank = index + 1;
+      return {
+        movie_id: "MOVIE-" + String(index + 1).padStart(2, "0"),
+        display_title: name + " (" + year + ")",
+        year: year,
+        rating: Number(rating.toFixed(2)),
+        rank: rank,
+        selected: index === 5
+      };
+    });
+    window.sampleContext = {
+      __wv: { contract_version: 1, page: 43, page_name: "hybrid_rating" },
+      ranked_view: {
+        native_found_count: rows.length,
+        selected_movie_id: "MOVIE-06",
+        rating_band: { active: false, rating_lo: null, rating_hi: null, label: "All ratings" },
+        rows: rows
+      }
+    };
+    window.bandContext = JSON.parse(JSON.stringify(window.sampleContext));
+    window.bandContext.ranked_view.rating_band = { active: true, rating_lo: 7.05, rating_hi: 8.15, label: "Ratings 7.05–8.15" };
+  </script>
+  <script src="wv.renderer.hybrid.rating.js"></script>
+  <script>
+    document.getElementById("loadPopulated").addEventListener("click", function () { WV.render(window.sampleContext); });
+    document.getElementById("loadBand").addEventListener("click", function () { WV.render(window.bandContext); });
+    document.getElementById("loadEmpty").addEventListener("click", function () { WV.render({ ranked_view: { rows: [], empty_message: "No movies match the acknowledged FileMaker found set." } }); });
+    WV.render(window.sampleContext);
+  </script>
+</body>
+</html>

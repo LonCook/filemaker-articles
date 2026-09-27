@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace batch call to ensure loaded that uses #().</Text>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "object_name" ; $_object_name ; JSONString ]
+  ; [ "context_json" ; $_ctx ; JSONString ]
+  ; [ "force_reload" ; $_force_reload_viewer ; JSONNumber ]
+)]]></Calculation>
+    <Script id="450" name=". webviewer . ensure loaded ( index ; -object_name ; -context_json ; -movie_id ; -genre_id ; ... ) :"/>
+  </Step>
+</fmxmlsnippet>

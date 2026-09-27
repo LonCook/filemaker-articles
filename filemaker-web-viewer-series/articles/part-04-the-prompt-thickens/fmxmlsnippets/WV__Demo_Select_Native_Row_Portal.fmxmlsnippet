@@ -1,0 +1,169 @@
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Purpose:	Acknowledge a clicked native portal row as FileMaker-owned hybrid selection and refresh both surfaces.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> In:			Get ( ScriptParameter ) as stable MOVIE::ID; falls back to the current MOVIE_GLOBAL_RATING portal row.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Out:		JSON status object.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Anchor:		SOLUTION__all on WV Framework - Hybrid; button context is MOVIE_GLOBAL_RATING.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Calls:		WV__Demo_Apply_Hybrid_Context, WV__Demo_Push_Context.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text> Modified:	17 Aug 2026, 23hr53PT — Lon Cook — lon@portagebay.com : repurpose native-row selection for the relationship-backed portal without changing the layout current record.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	16 Aug 2026, 18hr12PT — Lon Cook — lon@portagebay.com : patch selection context without rebuilding SQL or changing the native found set.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	15 Aug 2026, 23hr32PT — Lon Cook — lon@portagebay.com : push fresh acknowledgement context into the loaded Web Viewer without reloading it.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	15 Aug 2026, 21hr40PT — Lon Cook — lon@portagebay.com : accept the clicked native row ID instead of relying on the previously active record.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Restore state="False" />
+    <Text> Modified:	15 Aug 2026, 19hr31PT — Lon Cook — lon@portagebay.com : created</Text>
+  </Step>
+  <Step enable="True" id="86" name="Set Error Capture">
+    <Set state="True" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>Let ( [ p = GetAsText ( Get ( ScriptParameter ) ) ] ;
+  Case ( not IsEmpty ( p ) ; p ; GetAsText ( MOVIE_GLOBAL_RATING::id_movie ) )
+)</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_movie_id</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( SOLUTION__all::g_wv_hybrid_movie_ids )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_portal_movie_ids</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>not IsEmpty ( $_movie_id ) and not IsEmpty ( FilterValues ( $_portal_movie_ids ; $_movie_id ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_movie_valid</Name>
+  </Step>
+  <Step enable="True" id="68" name="If">
+    <Restore state="False" />
+    <Calculation>not $_movie_valid</Calculation>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 0 ; JSONBoolean ]
+  ; [ "error" ; "no_portal_movie" ; JSONString ]
+  ; [ "movie_id" ; $_movie_id ; JSONString ]
+)</Calculation>
+  </Step>
+  <Step enable="True" id="70" name="End If" />
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsNumber ( GetField ( "FOCUS::g_wv_action_count" ) ) + 1</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_count</Name>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>"Selected native portal movie " &amp; $_movie_id</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_status</Name>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_movie_id</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_demo_movie_id"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>JSONFormatElements ( JSONSetElement ( "{}"
+  ; [ "__wv_action.version" ; 1 ; JSONNumber ]
+  ; [ "__wv_action.source" ; "filemaker.native.hybrid_portal" ; JSONString ]
+  ; [ "__wv_action.page" ; 43 ; JSONNumber ]
+  ; [ "type" ; "hybrid.select_movie" ; JSONString ]
+  ; [ "payload.movie_id" ; $_movie_id ; JSONString ]
+) )</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_json"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>"hybrid.select_movie"</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_type"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_count</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_count"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="147" name="Set Field By Name">
+    <Result>
+      <Calculation>$_status</Calculation>
+    </Result>
+    <TargetName>
+      <Calculation>"FOCUS::g_wv_action_status"</Calculation>
+    </TargetName>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="502" name="WV__Demo_Apply_Hybrid_Context" />
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation>""</Calculation>
+    <Script id="482" name="WV__Demo_Push_Context" />
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+    <Value>
+      <Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+    </Value>
+    <Repetition>
+      <Calculation>1</Calculation>
+    </Repetition>
+    <Name>$_push_result</Name>
+  </Step>
+  <Step enable="True" id="103" name="Exit Script">
+    <Calculation>JSONSetElement ( "{}"
+  ; [ "ok" ; 1 ; JSONBoolean ]
+  ; [ "type" ; "hybrid.select_movie" ; JSONString ]
+  ; [ "selected_movie_id" ; $_movie_id ; JSONString ]
+  ; [ "push_result" ; $_push_result ; JSONString ]
+)</Calculation>
+  </Step>
+</fmxmlsnippet>

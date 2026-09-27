@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>FULL REPLACEMENT for script: WV__Demo_Load_Viewer</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Select all existing steps in this script, paste this snippet, then smoke test.</Text>
+  </Step>
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Purpose:	Load the selected framework module into the demo Web Viewer object.</StepText>
+  					<Text> Purpose:	Load the selected framework module into the demo Web Viewer object.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># In:			FOCUS::g_wv_module_index; defaults to module 62 when empty.</StepText>
+  					<Text> In:			FOCUS::g_wv_module_index; defaults to module 62 when empty.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Out:		FOCUS::g_wv_status; exits with the framework load script result.</StepText>
+  					<Text> Out:		FOCUS::g_wv_status; exits with the framework load script result.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Anchor:		FOCUS. Web Viewer object name is wv_main.</StepText>
+  					<Text> Anchor:		FOCUS. Web Viewer object name is wv_main.</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Calls:		. webviewer . load ( index ; -object_name )</StepText>
+  					<Text> Calls:		. webviewer . load ( index ; -object_name )</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText># Modified:	06 Jul 2026, 23hr07PT — Lon Cook — lon@portagebay.com : created</StepText>
+  					<Text> Modified:	06 Jul 2026, 23hr07PT — Lon Cook — lon@portagebay.com : created</Text>
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="86" name="Set Error Capture">
+  					<StepText>Set Error Capture [ On ]</StepText>
+  					<Set state="True" />
+  				</Step>
+  				
+  <Step enable="True" id="89" name="# (comment)">
+  					<StepText />
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_index; Value:Let (
+    [
+      raw = GetField ( "FOCUS::g_wv_module_index" )
+    ] ;
+    Case (
+      IsEmpty ( raw ) ; 62 ;
+      GetAsNumber ( raw )
+    )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>Let (
+    [
+      raw = GetField ( "FOCUS::g_wv_module_index" )
+    ] ;
+    Case (
+      IsEmpty ( raw ) ; 62 ;
+      GetAsNumber ( raw )
+    )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">Let</Chunk>
+  							<Chunk type="NoRef"> (
+    [
+      raw = </Chunk>
+  							<Chunk type="FunctionRef">GetField</Chunk>
+  							<Chunk type="NoRef"> ( "FOCUS::g_wv_module_index" )
+    ] ;
+    </Chunk>
+  							<Chunk type="FunctionRef">Case</Chunk>
+  							<Chunk type="NoRef"> (
+      </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( raw ) ; 62 ;
+      </Chunk>
+  							<Chunk type="FunctionRef">GetAsNumber</Chunk>
+  							<Chunk type="NoRef"> ( raw )
+    )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_index</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_object_name; Value:"wv_main" ]</StepText>
+  					<Value>
+  						<Calculation>"wv_main"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"wv_main"</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_object_name</Name>
+  				</Step>
+  				
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "index" ; $_index ; JSONNumber ]
+  ; [ "object_name" ; $_object_name ; JSONString ]
+)]]></Calculation>
+    <Script id="448" name=". webviewer . load ( index ; -object_name )"/>
+  </Step>
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_load_result; Value:GetAsText ( Get ( ScriptResult ) ) ]</StepText>
+  					<Value>
+  						<Calculation>GetAsText ( Get ( ScriptResult ) )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">GetAsText</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">Get</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">ScriptResult</Chunk>
+  							<Chunk type="NoRef"> ) )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_load_result</Name>
+  				</Step>
+  				
+  <Step enable="True" id="141" name="Set Variable">
+  					<StepText>Set Variable [ $_status; Value:List (
+    GetField ( "FOCUS::g_wv_status" ) ;
+    "Viewer loaded: module " &amp; $_index &amp; " -&gt; " &amp; $_object_name &amp;
+      If ( not IsEmpty ( $_load_result ) ; " | result: " &amp; $_load_result ; "" )
+  ) ]</StepText>
+  					<Value>
+  						<Calculation>List (
+    GetField ( "FOCUS::g_wv_status" ) ;
+    "Viewer loaded: module " &amp; $_index &amp; " -&gt; " &amp; $_object_name &amp;
+      If ( not IsEmpty ( $_load_result ) ; " | result: " &amp; $_load_result ; "" )
+  )</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="FunctionRef">List</Chunk>
+  							<Chunk type="NoRef"> (
+    </Chunk>
+  							<Chunk type="FunctionRef">GetField</Chunk>
+  							<Chunk type="NoRef"> ( "FOCUS::g_wv_status" ) ;
+    "Viewer loaded: module " &amp; $_index &amp; " -&gt; " &amp; $_object_name &amp;
+      </Chunk>
+  							<Chunk type="FunctionRef">If</Chunk>
+  							<Chunk type="NoRef"> ( </Chunk>
+  							<Chunk type="FunctionRef">not</Chunk>
+  							<Chunk type="NoRef"> </Chunk>
+  							<Chunk type="FunctionRef">IsEmpty</Chunk>
+  							<Chunk type="NoRef"> ( $_load_result ) ; " | result: " &amp; $_load_result ; "" )
+  )</Chunk>
+  						</DisplayCalculation>
+  					</Value>
+  					<Repetition>
+  						<Calculation>1</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">1</Chunk>
+  						</DisplayCalculation>
+  					</Repetition>
+  					<Name>$_status</Name>
+  				</Step>
+  				
+  <Step enable="True" id="147" name="Set Field By Name">
+  					<StepText>Set Field By Name [ "FOCUS::g_wv_status"; $_status ]</StepText>
+  					<Result>
+  						<Calculation>$_status</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">$_status</Chunk>
+  						</DisplayCalculation>
+  					</Result>
+  					<TargetName>
+  						<Calculation>"FOCUS::g_wv_status"</Calculation>
+  						<DisplayCalculation>
+  							<Chunk type="NoRef">"FOCUS::g_wv_status"</Chunk>
+  						</DisplayCalculation>
+  					</TargetName>
+  				</Step>
+  				
+  <Step enable="True" id="103" name="Exit Script">
+  					<StepText>Exit Script [ Result: $_load_result ]</StepText>
+  					<Calculation>$_load_result</Calculation>
+  					<DisplayCalculation>
+  						<Chunk type="NoRef">$_load_result</Chunk>
+  					</DisplayCalculation>
+  				</Step>
+  			
+</fmxmlsnippet>

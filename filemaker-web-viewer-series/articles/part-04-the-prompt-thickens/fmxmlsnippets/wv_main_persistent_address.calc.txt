@@ -1,0 +1,4 @@
+Target layout object: wv_main
+Target layout: WV Framework - Hybrid
+
+JSONGetElement ( $$wv_url_map ; "wv_main" )

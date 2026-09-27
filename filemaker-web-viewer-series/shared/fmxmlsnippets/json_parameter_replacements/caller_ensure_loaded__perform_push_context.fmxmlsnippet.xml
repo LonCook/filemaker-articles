@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  <Step enable="True" id="89" name="# (comment)">
+    <Text>Replace each ensure-loaded call to push context that uses #(). Use this for both occurrences.</Text>
+  </Step>
+  <Step enable="True" id="1" name="Perform Script">
+    <Calculation><![CDATA[JSONSetElement ( "{}"
+  ; [ "object_name" ; $_object_name ; JSONString ]
+  ; [ "context_json" ; $_ctx ; JSONString ]
+)]]></Calculation>
+    <Script id="449" name=". webviewer . push context ( -object_name ; -context_json )"/>
+  </Step>
+</fmxmlsnippet>

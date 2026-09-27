@@ -1,0 +1,492 @@
+<fmxmlsnippet type="LayoutObjectList">
+  <Layout enclosingRectTop="524.0000000" enclosingRectLeft="12.0000000" enclosingRectBottom="878.0000000" enclosingRectRight="1273.0000000">
+    <Object type="Text" key="608" LabelKey="0" flags="1342177280" rotation="0">
+      <Bounds top="524.0000000" left="24.0000000" bottom="546.0000000" right="76.0000000" />
+      <TextObj flags="8" tableViewVisibility="0">
+        <ExtendedAttributes fontHeight="0" graphicFormat="0">
+          <NumFormat flags="0" charStyle="0" negativeStyle="0" currencySymbol="" thousandsSep="0" decimalPoint="0" negativeColor="#0" decimalDigits="0" trueString="" falseString="" />
+          <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="0">
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElementSep index="0" />
+            <DateElementSep index="1" />
+            <DateElementSep index="2" />
+            <DateElementSep index="3" />
+            <DateElementSep index="4" />
+          </DateFormat>
+          <TimeFormat flags="0" charStyle="0" hourStyle="0" minsecStyle="0" separator="0" amString="" pmString="" ampmString="" />
+        </ExtendedAttributes>
+        <Styles>
+          <LocalCSS>
+self:normal .self
+{
+	text-align: right;
+	-fm-text-vertical-align: center;
+}
+</LocalCSS>
+        </Styles>
+        <CharacterStyleVector>
+          <Style>
+            <Data>RANK</Data>
+            <CharacterStyle mask="32695">
+              <Font-family codeSet="Roman" fontId="18" postScript="HelveticaNeue">Helvetica Neue</Font-family>
+              <Font-size>12</Font-size>
+              <Face>0</Face>
+              <Color>#4D4D4D</Color>
+            </CharacterStyle>
+          </Style>
+        </CharacterStyleVector>
+        <ParagraphStyleVector>
+          <Style>
+            <Data>RANK</Data>
+            <ParagraphStyle mask="0">
+</ParagraphStyle>
+          </Style>
+        </ParagraphStyleVector>
+        <FieldList quickFind="False" />
+      </TextObj>
+    </Object>
+    <Object type="Text" key="609" LabelKey="0" flags="1342177280" rotation="0">
+      <Bounds top="524.0000000" left="86.0000000" bottom="546.0000000" right="646.0000000" />
+      <TextObj flags="8" tableViewVisibility="0">
+        <ExtendedAttributes fontHeight="0" graphicFormat="0">
+          <NumFormat flags="0" charStyle="0" negativeStyle="0" currencySymbol="" thousandsSep="0" decimalPoint="0" negativeColor="#0" decimalDigits="0" trueString="" falseString="" />
+          <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="0">
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElementSep index="0" />
+            <DateElementSep index="1" />
+            <DateElementSep index="2" />
+            <DateElementSep index="3" />
+            <DateElementSep index="4" />
+          </DateFormat>
+          <TimeFormat flags="0" charStyle="0" hourStyle="0" minsecStyle="0" separator="0" amString="" pmString="" ampmString="" />
+        </ExtendedAttributes>
+        <Styles>
+          <LocalCSS>
+self:normal .self
+{
+	text-align: right;
+	-fm-text-vertical-align: center;
+}
+</LocalCSS>
+        </Styles>
+        <CharacterStyleVector>
+          <Style>
+            <Data>TITLE</Data>
+            <CharacterStyle mask="32695">
+              <Font-family codeSet="Roman" fontId="18" postScript="HelveticaNeue">Helvetica Neue</Font-family>
+              <Font-size>12</Font-size>
+              <Face>0</Face>
+              <Color>#4D4D4D</Color>
+            </CharacterStyle>
+          </Style>
+        </CharacterStyleVector>
+        <ParagraphStyleVector>
+          <Style>
+            <Data>TITLE</Data>
+            <ParagraphStyle mask="0">
+</ParagraphStyle>
+          </Style>
+        </ParagraphStyleVector>
+        <FieldList quickFind="False" />
+      </TextObj>
+    </Object>
+    <Object type="Text" key="610" LabelKey="0" flags="1342177280" rotation="0">
+      <Bounds top="524.0000000" left="656.0000000" bottom="546.0000000" right="736.0000000" />
+      <TextObj flags="8" tableViewVisibility="0">
+        <ExtendedAttributes fontHeight="0" graphicFormat="0">
+          <NumFormat flags="0" charStyle="0" negativeStyle="0" currencySymbol="" thousandsSep="0" decimalPoint="0" negativeColor="#0" decimalDigits="0" trueString="" falseString="" />
+          <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="0">
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElementSep index="0" />
+            <DateElementSep index="1" />
+            <DateElementSep index="2" />
+            <DateElementSep index="3" />
+            <DateElementSep index="4" />
+          </DateFormat>
+          <TimeFormat flags="0" charStyle="0" hourStyle="0" minsecStyle="0" separator="0" amString="" pmString="" ampmString="" />
+        </ExtendedAttributes>
+        <Styles>
+          <LocalCSS>
+self:normal .self
+{
+	text-align: right;
+	-fm-text-vertical-align: center;
+}
+</LocalCSS>
+        </Styles>
+        <CharacterStyleVector>
+          <Style>
+            <Data>YEAR</Data>
+            <CharacterStyle mask="32695">
+              <Font-family codeSet="Roman" fontId="18" postScript="HelveticaNeue">Helvetica Neue</Font-family>
+              <Font-size>12</Font-size>
+              <Face>0</Face>
+              <Color>#4D4D4D</Color>
+            </CharacterStyle>
+          </Style>
+        </CharacterStyleVector>
+        <ParagraphStyleVector>
+          <Style>
+            <Data>YEAR</Data>
+            <ParagraphStyle mask="0">
+</ParagraphStyle>
+          </Style>
+        </ParagraphStyleVector>
+        <FieldList quickFind="False" />
+      </TextObj>
+    </Object>
+    <Object type="Text" key="611" LabelKey="0" flags="1342177280" rotation="0">
+      <Bounds top="524.0000000" left="786.0000000" bottom="546.0000000" right="906.0000000" />
+      <TextObj flags="8" tableViewVisibility="0">
+        <ExtendedAttributes fontHeight="0" graphicFormat="0">
+          <NumFormat flags="0" charStyle="0" negativeStyle="0" currencySymbol="" thousandsSep="0" decimalPoint="0" negativeColor="#0" decimalDigits="0" trueString="" falseString="" />
+          <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="0">
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElementSep index="0" />
+            <DateElementSep index="1" />
+            <DateElementSep index="2" />
+            <DateElementSep index="3" />
+            <DateElementSep index="4" />
+          </DateFormat>
+          <TimeFormat flags="0" charStyle="0" hourStyle="0" minsecStyle="0" separator="0" amString="" pmString="" ampmString="" />
+        </ExtendedAttributes>
+        <Styles>
+          <LocalCSS>
+self:normal .self
+{
+	text-align: right;
+	-fm-text-vertical-align: center;
+}
+</LocalCSS>
+        </Styles>
+        <CharacterStyleVector>
+          <Style>
+            <Data>RATING</Data>
+            <CharacterStyle mask="32695">
+              <Font-family codeSet="Roman" fontId="18" postScript="HelveticaNeue">Helvetica Neue</Font-family>
+              <Font-size>12</Font-size>
+              <Face>0</Face>
+              <Color>#4D4D4D</Color>
+            </CharacterStyle>
+          </Style>
+        </CharacterStyleVector>
+        <ParagraphStyleVector>
+          <Style>
+            <Data>RATING</Data>
+            <ParagraphStyle mask="0">
+</ParagraphStyle>
+          </Style>
+        </ParagraphStyleVector>
+        <FieldList quickFind="False" />
+      </TextObj>
+    </Object>
+    <Object type="Text" key="612" LabelKey="0" flags="1342177280" rotation="0">
+      <Bounds top="524.0000000" left="936.0000000" bottom="546.0000000" right="1258.0000000" />
+      <TextObj flags="8" tableViewVisibility="0">
+        <ExtendedAttributes fontHeight="0" graphicFormat="0">
+          <NumFormat flags="0" charStyle="0" negativeStyle="0" currencySymbol="" thousandsSep="0" decimalPoint="0" negativeColor="#0" decimalDigits="0" trueString="" falseString="" />
+          <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="0">
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElement>0</DateElement>
+            <DateElementSep index="0" />
+            <DateElementSep index="1" />
+            <DateElementSep index="2" />
+            <DateElementSep index="3" />
+            <DateElementSep index="4" />
+          </DateFormat>
+          <TimeFormat flags="0" charStyle="0" hourStyle="0" minsecStyle="0" separator="0" amString="" pmString="" ampmString="" />
+        </ExtendedAttributes>
+        <Styles>
+          <LocalCSS>
+self:normal .self
+{
+	text-align: right;
+	-fm-text-vertical-align: center;
+}
+</LocalCSS>
+        </Styles>
+        <CharacterStyleVector>
+          <Style>
+            <Data>STABLE MOVIE ID</Data>
+            <CharacterStyle mask="32695">
+              <Font-family codeSet="Roman" fontId="18" postScript="HelveticaNeue">Helvetica Neue</Font-family>
+              <Font-size>12</Font-size>
+              <Face>0</Face>
+              <Color>#4D4D4D</Color>
+            </CharacterStyle>
+          </Style>
+        </CharacterStyleVector>
+        <ParagraphStyleVector>
+          <Style>
+            <Data>STABLE MOVIE ID</Data>
+            <ParagraphStyle mask="0">
+</ParagraphStyle>
+          </Style>
+        </ParagraphStyleVector>
+        <FieldList quickFind="False" />
+      </TextObj>
+    </Object>
+    <Object type="Portal" key="601" LabelKey="0" name="portal.hybrid_movies" flags="-2147483648" rotation="0">
+      <Bounds top="550.0000000" left="12.0000000" bottom="878.0000000" right="1273.0000000" />
+      <PortalObj portalFlags="277" numOfRows="10" initialRow="1">
+        <TableAliasKey>MOVIE_GLOBAL_RATING</TableAliasKey>
+        <FieldList>
+          <Field table="MOVIE_GLOBAL_RATING" id="21" name="global_rank_order" />
+          <Field table="MOVIE_GLOBAL_RATING" id="16" name="global_rating" />
+          <Field table="MOVIE_GLOBAL_RATING" id="15" name="id_movie" />
+          <Field table="hybrid.MOVIE" id="24" name="year" />
+          <Field table="hybrid.TITLE~display" id="13" name="title" />
+        </FieldList>
+        <Styles>
+          <LocalCSS>self:normal .self
+{
+  background-color: #151515;
+  border-bottom-color: #2B2B2B;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}</LocalCSS>
+        </Styles>
+        <Object type="Field" key="602" LabelKey="0" flags="0" rotation="0">
+          <Bounds top="551.0000000" left="24.0000000" bottom="582.0000000" right="76.0000000" />
+          <FieldObj numOfReps="1" flags="20" inputMode="0" keyboardType="1" displayType="0" tableViewVisibility="0" quickFind="0" pictFormat="5">
+            <Name>MOVIE_GLOBAL_RATING::global_rank_order</Name>
+            <ExtendedAttributes fontHeight="14" graphicFormat="5">
+              <NumFormat flags="2304" charStyle="0" negativeStyle="0" currencySymbol="$" thousandsSep="44" decimalPoint="46" negativeColor="#DD000000" decimalDigits="2" trueString="Yes" falseString="No" />
+              <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="47">
+                <DateElement>3</DateElement>
+                <DateElement>6</DateElement>
+                <DateElement>1</DateElement>
+                <DateElement>8</DateElement>
+                <DateElementSep index="0" />
+                <DateElementSep index="1">, </DateElementSep>
+                <DateElementSep index="2"> </DateElementSep>
+                <DateElementSep index="3">, </DateElementSep>
+                <DateElementSep index="4" />
+              </DateFormat>
+              <TimeFormat flags="143" charStyle="0" hourStyle="0" minsecStyle="1" separator="58" amString=" AM" pmString=" PM" ampmString="" />
+            </ExtendedAttributes>
+            <Styles>
+              <CustomStyles>
+                <Name>portalField</Name>
+              </CustomStyles>
+            </Styles>
+            <DDRInfo>
+              <Field name="global_rank_order" id="21" repetition="1" maxRepetition="1" table="MOVIE_GLOBAL_RATING" />
+            </DDRInfo>
+          </FieldObj>
+        </Object>
+        <Object type="Field" key="603" LabelKey="0" flags="0" rotation="0">
+          <Bounds top="551.0000000" left="86.0000000" bottom="582.0000000" right="646.0000000" />
+          <FieldObj numOfReps="1" flags="20" inputMode="0" keyboardType="1" displayType="0" tableViewVisibility="0" quickFind="0" pictFormat="5">
+            <Name>hybrid.TITLE~display::title</Name>
+            <ExtendedAttributes fontHeight="14" graphicFormat="5">
+              <NumFormat flags="2304" charStyle="0" negativeStyle="0" currencySymbol="$" thousandsSep="44" decimalPoint="46" negativeColor="#DD000000" decimalDigits="2" trueString="Yes" falseString="No" />
+              <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="47">
+                <DateElement>3</DateElement>
+                <DateElement>6</DateElement>
+                <DateElement>1</DateElement>
+                <DateElement>8</DateElement>
+                <DateElementSep index="0" />
+                <DateElementSep index="1">, </DateElementSep>
+                <DateElementSep index="2"> </DateElementSep>
+                <DateElementSep index="3">, </DateElementSep>
+                <DateElementSep index="4" />
+              </DateFormat>
+              <TimeFormat flags="143" charStyle="0" hourStyle="0" minsecStyle="1" separator="58" amString=" AM" pmString=" PM" ampmString="" />
+            </ExtendedAttributes>
+            <Styles>
+              <CustomStyles>
+                <Name>portalField</Name>
+              </CustomStyles>
+            </Styles>
+            <DDRInfo>
+              <Field name="title" id="13" repetition="1" maxRepetition="1" table="hybrid.TITLE~display" />
+            </DDRInfo>
+          </FieldObj>
+        </Object>
+        <Object type="Field" key="604" LabelKey="0" flags="0" rotation="0">
+          <Bounds top="551.0000000" left="656.0000000" bottom="582.0000000" right="736.0000000" />
+          <FieldObj numOfReps="1" flags="20" inputMode="0" keyboardType="1" displayType="0" tableViewVisibility="0" quickFind="0" pictFormat="5">
+            <Name>hybrid.MOVIE::year</Name>
+            <ExtendedAttributes fontHeight="14" graphicFormat="5">
+              <NumFormat flags="2304" charStyle="0" negativeStyle="0" currencySymbol="$" thousandsSep="44" decimalPoint="46" negativeColor="#DD000000" decimalDigits="2" trueString="Yes" falseString="No" />
+              <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="47">
+                <DateElement>3</DateElement>
+                <DateElement>6</DateElement>
+                <DateElement>1</DateElement>
+                <DateElement>8</DateElement>
+                <DateElementSep index="0" />
+                <DateElementSep index="1">, </DateElementSep>
+                <DateElementSep index="2"> </DateElementSep>
+                <DateElementSep index="3">, </DateElementSep>
+                <DateElementSep index="4" />
+              </DateFormat>
+              <TimeFormat flags="143" charStyle="0" hourStyle="0" minsecStyle="1" separator="58" amString=" AM" pmString=" PM" ampmString="" />
+            </ExtendedAttributes>
+            <Styles>
+              <CustomStyles>
+                <Name>portalField</Name>
+              </CustomStyles>
+            </Styles>
+            <DDRInfo>
+              <Field name="year" id="24" repetition="1" maxRepetition="1" table="hybrid.MOVIE" />
+            </DDRInfo>
+          </FieldObj>
+        </Object>
+        <Object type="Field" key="605" LabelKey="0" flags="0" rotation="0">
+          <Bounds top="551.0000000" left="786.0000000" bottom="582.0000000" right="906.0000000" />
+          <FieldObj numOfReps="1" flags="20" inputMode="0" keyboardType="1" displayType="0" tableViewVisibility="0" quickFind="0" pictFormat="5">
+            <Name>MOVIE_GLOBAL_RATING::global_rating</Name>
+            <ExtendedAttributes fontHeight="14" graphicFormat="5">
+              <NumFormat flags="2304" charStyle="0" negativeStyle="0" currencySymbol="$" thousandsSep="44" decimalPoint="46" negativeColor="#DD000000" decimalDigits="2" trueString="Yes" falseString="No" />
+              <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="47">
+                <DateElement>3</DateElement>
+                <DateElement>6</DateElement>
+                <DateElement>1</DateElement>
+                <DateElement>8</DateElement>
+                <DateElementSep index="0" />
+                <DateElementSep index="1">, </DateElementSep>
+                <DateElementSep index="2"> </DateElementSep>
+                <DateElementSep index="3">, </DateElementSep>
+                <DateElementSep index="4" />
+              </DateFormat>
+              <TimeFormat flags="143" charStyle="0" hourStyle="0" minsecStyle="1" separator="58" amString=" AM" pmString=" PM" ampmString="" />
+            </ExtendedAttributes>
+            <Styles>
+              <CustomStyles>
+                <Name>portalField</Name>
+              </CustomStyles>
+            </Styles>
+            <DDRInfo>
+              <Field name="global_rating" id="16" repetition="1" maxRepetition="1" table="MOVIE_GLOBAL_RATING" />
+            </DDRInfo>
+          </FieldObj>
+        </Object>
+        <Object type="Field" key="606" LabelKey="0" flags="0" rotation="0">
+          <Bounds top="551.0000000" left="936.0000000" bottom="582.0000000" right="1258.0000000" />
+          <FieldObj numOfReps="1" flags="20" inputMode="0" keyboardType="1" displayType="0" tableViewVisibility="0" quickFind="0" pictFormat="5">
+            <Name>MOVIE_GLOBAL_RATING::id_movie</Name>
+            <ExtendedAttributes fontHeight="14" graphicFormat="5">
+              <NumFormat flags="2304" charStyle="0" negativeStyle="0" currencySymbol="$" thousandsSep="44" decimalPoint="46" negativeColor="#DD000000" decimalDigits="2" trueString="Yes" falseString="No" />
+              <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="47">
+                <DateElement>3</DateElement>
+                <DateElement>6</DateElement>
+                <DateElement>1</DateElement>
+                <DateElement>8</DateElement>
+                <DateElementSep index="0" />
+                <DateElementSep index="1">, </DateElementSep>
+                <DateElementSep index="2"> </DateElementSep>
+                <DateElementSep index="3">, </DateElementSep>
+                <DateElementSep index="4" />
+              </DateFormat>
+              <TimeFormat flags="143" charStyle="0" hourStyle="0" minsecStyle="1" separator="58" amString=" AM" pmString=" PM" ampmString="" />
+            </ExtendedAttributes>
+            <Styles>
+              <CustomStyles>
+                <Name>portalField</Name>
+              </CustomStyles>
+            </Styles>
+            <DDRInfo>
+              <Field name="id_movie" id="15" repetition="1" maxRepetition="1" table="MOVIE_GLOBAL_RATING" />
+            </DDRInfo>
+          </FieldObj>
+        </Object>
+        <Object type="Button" key="607" LabelKey="0" flags="65536" rotation="0" name="button.hybrid_portal_row">
+          <ConditionalFormatting>
+            <Item id="0" flags="5">
+              <Condition op="0">
+                <Calculation>GetAsText ( MOVIE_GLOBAL_RATING::id_movie ) = GetAsText ( FOCUS::g_wv_demo_movie_id )</Calculation>
+                <RangeBegin />
+                <RangeEnd />
+              </Condition>
+              <Format>
+                <Styles>
+                  <LocalCSS>self:normal .self
+{
+  background-color: rgba(78%,63%,8%,0.38);
+  border-left-color: #D5AA18;
+  border-left-style: solid;
+  border-left-width: 4px;
+}</LocalCSS>
+                </Styles>
+              </Format>
+            </Item>
+          </ConditionalFormatting>
+          <Bounds top="551.0000000" left="13.0000000" bottom="582.0000000" right="1272.0000000" />
+          <TextObj flags="2">
+            <ExtendedAttributes fontHeight="14" graphicFormat="0">
+              <NumFormat flags="0" charStyle="0" negativeStyle="0" currencySymbol="" thousandsSep="0" decimalPoint="0" negativeColor="#0" decimalDigits="0" trueString="" falseString="" />
+              <DateFormat format="0" charStyle="0" monthStyle="0" dayStyle="0" separator="0">
+                <DateElement>0</DateElement>
+                <DateElement>0</DateElement>
+                <DateElement>0</DateElement>
+                <DateElement>0</DateElement>
+                <DateElementSep index="0" />
+                <DateElementSep index="1" />
+                <DateElementSep index="2" />
+                <DateElementSep index="3" />
+                <DateElementSep index="4" />
+              </DateFormat>
+              <TimeFormat flags="0" charStyle="0" hourStyle="0" minsecStyle="0" separator="0" amString="" pmString="" ampmString="" />
+            </ExtendedAttributes>
+            <Styles>
+              <LocalCSS>self:normal .self
+{
+  background-color: rgba(0%,0%,0%,0);
+  border-style: none;
+}
+self:hover .self
+{
+  background-color: rgba(78%,63%,8%,0.14);
+  border-style: none;
+}
+self:pressed .self
+{
+  background-color: rgba(78%,63%,8%,0.24);
+  border-style: none;
+}</LocalCSS>
+            </Styles>
+            <CharacterStyleVector>
+              <Style>
+                <Data />
+                <CharacterStyle mask="32695">
+                  <Font-family codeSet="Roman" fontId="18" postScript="HelveticaNeue">Helvetica Neue</Font-family>
+                  <Font-size>12</Font-size>
+                  <Face>0</Face>
+                  <Color>#ADADAD</Color>
+                </CharacterStyle>
+              </Style>
+            </CharacterStyleVector>
+            <ParagraphStyleVector>
+              <Style>
+                <Data />
+                <ParagraphStyle mask="0">
+</ParagraphStyle>
+              </Style>
+            </ParagraphStyleVector>
+          </TextObj>
+          <ButtonObj buttonFlags="0" iconSize="12" displayType="0">
+            <Step enable="True" id="1" name="Perform Script">
+              <Calculation>GetAsText ( MOVIE_GLOBAL_RATING::id_movie )</Calculation>
+              <Script id="501" name="WV__Demo_Select_Native_Row" />
+            </Step>
+          </ButtonObj>
+        </Object>
+      </PortalObj>
+    </Object>
+  </Layout>
+</fmxmlsnippet>
