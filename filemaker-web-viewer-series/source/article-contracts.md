@@ -289,7 +289,9 @@ The blob has become a set of named modules, explicit data and action contracts, 
 
 When a later demo modifies an existing FileMaker script, preserve every existing modification-history entry in that script's header. Add the new entry at the top of the list; do not replace the prior entry merely because the current article is interested in the latest change.
 
-Use newest-first order:
+For new headers and entries, follow the user-wide authoring standard at /Users/loncook/.agents/skills/filemaker-development/references/authoring.md: Purpose / In / Out / Context / Notes / History, the prescribed modification-entry format, and documentation after each bounded change before delivery. Existing entries remain verbatim; add new entries under History.
+
+Historical newest-first example (retained verbatim; its repeated Modified labels are not the current new-header template):
 
 ```text
 # Modified: {{current timestamp}} — {{author}} — {{email}} : {{current change}}
